@@ -1169,7 +1169,7 @@
             };
         }
 
-        function getLocationScores(targetWeapons, desiredStats) {
+        function getLocationScores(targetWeapons, desiredStats, options = {}) {
             const activeStatType = desiredStats.secondary ? 'secondary' : 'skill';
             const matchingWeapons = targetWeapons.filter(weapon => {
                 const weaponData = weaponsData[weapon];
@@ -1182,7 +1182,8 @@
                 return attributeMatch && secondaryMatch && skillMatch;
             });
 
-            const poolWeapons = matchingWeapons.length > 0 ? matchingWeapons : targetWeapons;
+            const strictDesiredStats = options.strictDesiredStats === true;
+            const poolWeapons = (strictDesiredStats || matchingWeapons.length > 0) ? matchingWeapons : targetWeapons;
 
             const locationScores = Object.entries(locationsData).map(([name, location]) => {
                 const locationMatchingWeapons = poolWeapons.filter(weapon => {
@@ -1264,11 +1265,32 @@
             const farmPlan = [];
             let remainingWeapons = [...weaponsNeedingEssence];
 
+            const manualDesiredStats = {
+                attribute: Array.from(state.selectedAttributeStats),
+                secondary: state.selectedSecondaryStat,
+                skill: state.selectedSkillStat
+            };
+
+            let useManualStatsForCurrentGroup = manualDesiredStats.attribute.length > 0 &&
+                ((manualDesiredStats.secondary && !manualDesiredStats.skill) ||
+                 (manualDesiredStats.skill && !manualDesiredStats.secondary));
+
             while (remainingWeapons.length > 0) {
-                const desiredStats = getRecommendedStatsForWeapons(remainingWeapons);
-                const { scores } = getLocationScores(remainingWeapons, desiredStats);
+                const desiredStats = useManualStatsForCurrentGroup
+                    ? manualDesiredStats
+                    : getRecommendedStatsForWeapons(remainingWeapons);
+                const { scores } = getLocationScores(
+                    remainingWeapons,
+                    desiredStats,
+                    { strictDesiredStats: useManualStatsForCurrentGroup }
+                );
                 const bestLocation = scores[0];
                 const alternativeLocation = scores.find(loc => loc.name !== bestLocation.name && loc.matchedWeaponsCount > 0) || null;
+
+                if (!bestLocation || bestLocation.totalWeaponsCount === 0) {
+                    showNoResults('Ни одно оружие не подходит под выбранные статы. Измените выбор статов или нажмите «Сбросить всё».');
+                    return;
+                }
 
                 let coveredWeapons = bestLocation.locationMatchingWeapons;
 
@@ -1289,6 +1311,7 @@
                         alternativeLocation: fallbackScores.find(loc => loc.name !== fallbackScores[0].name && loc.matchedWeaponsCount > 0) || null
                     });
 
+                    useManualStatsForCurrentGroup = false;
                     remainingWeapons = remainingWeapons.filter(weapon => weapon !== fallbackWeapon);
                     continue;
                 }
@@ -1300,6 +1323,7 @@
                     alternativeLocation
                 });
 
+                useManualStatsForCurrentGroup = false;
                 remainingWeapons = remainingWeapons.filter(weapon => !coveredWeapons.includes(weapon));
             }
 
