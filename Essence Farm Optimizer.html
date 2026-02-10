@@ -713,6 +713,23 @@
             selectedSkillStat: null
         };
 
+        function getWeaponIconPath(weapon) {
+            const iconOverrides = {
+                "Opus: Etch Figure": "оpus etch figure.png",
+                "Opus: The Living": "opus_the_living.png"
+            };
+
+            if (iconOverrides[weapon]) {
+                return `weapons/${iconOverrides[weapon]}`;
+            }
+
+            const normalizedName = weapon
+                .toLowerCase()
+                .replace(/:/g, '')
+                .replace(/\s+/g, '_');
+            return `weapons/${normalizedName}.png`;
+        }
+
         function initWeapons() {
             const weaponList = document.getElementById('weaponList');
             const weaponsByRarity = {6: [], 5: [], 4: []};
@@ -744,7 +761,7 @@
                     const weaponData = weaponsData[weapon];
                     const div = document.createElement('div');
                     div.className = 'weapon-item';
-                    const iconPath = `weapons/${weapon.replace(/[:\s]/g, '_')}.png`;
+                    const iconPath = getWeaponIconPath(weapon);
                     div.innerHTML = `
                         <img src="${iconPath}" alt="${weapon}" class="weapon-icon" onerror="this.style.display='none'">
                         <span class="weapon-name">${weapon}</span>
@@ -1251,7 +1268,7 @@
                 const desiredStats = getRecommendedStatsForWeapons(remainingWeapons);
                 const { scores } = getLocationScores(remainingWeapons, desiredStats);
                 const bestLocation = scores[0];
-                const alternativeLocation = scores.find(loc => loc.name !== bestLocation.name) || null;
+                const alternativeLocation = scores.find(loc => loc.name !== bestLocation.name && loc.matchedWeaponsCount > 0) || null;
 
                 let coveredWeapons = bestLocation.locationMatchingWeapons;
 
@@ -1269,7 +1286,7 @@
                         weapons: [fallbackWeapon],
                         desiredStats: fallbackStats,
                         bestLocation: fallbackScores[0],
-                        alternativeLocation: fallbackScores.find(loc => loc.name !== fallbackScores[0].name) || null
+                        alternativeLocation: fallbackScores.find(loc => loc.name !== fallbackScores[0].name && loc.matchedWeaponsCount > 0) || null
                     });
 
                     remainingWeapons = remainingWeapons.filter(weapon => weapon !== fallbackWeapon);
@@ -1323,7 +1340,7 @@
                             <strong style="color: var(--color-accent);">Оружие в группе (${step.weapons.length}):</strong>
                             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 8px;">
                                 ${step.weapons.map(weapon => {
-                                    const iconPath = `weapons/${weapon.replace(/[:\s]/g, '_')}.png`;
+                                    const iconPath = getWeaponIconPath(weapon);
                                     const isSelected = state.ownedWeapons.has(weapon);
                                     const hasEssence = state.essenceReady.has(weapon);
                                     const classes = hasEssence ? 'has-essence' : (isSelected ? 'selected' : '');
@@ -1378,7 +1395,7 @@
 
                 card.innerHTML = `
                     <div class="location-header">
-                        <span class="location-name">${index === 0 ? '🏆 ' : '🎯 '}${loc.name}</span>
+                        <span class="location-name">${index === 0 ? '🏆 Лучшая локация группы' : '🎯 Локация группы'}</span>
                         <div style="display: flex; gap: 8px; align-items: center;">
                             <span class="match-score">${loc.weaponMatchPercentage}% оружия (${loc.matchedWeaponsCount}/${loc.totalWeaponsCount})</span>
                             <span class="match-score">${loc.statMatchCount}/${loc.totalPossibleStats} статов</span>
