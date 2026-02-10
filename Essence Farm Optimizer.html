@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essence Farm Optimizer - Arknights Endfield</title>
+    <style>
+        :root {
+            --color-bg-primary: #0f172a;
+            --color-bg-secondary: #1e293b;
+            --color-bg-tertiary: #334155;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #cbd5e1;
+            --color-text-muted: #94a3b8;
+            --color-accent: #38bdf8;
+            --color-accent-hover: #0ea5e9;
+            --color-success: #22c55e;
+            --color-warning: #f59e0b;
+            --color-border: rgba(148, 163, 184, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--color-accent);
+            text-align: center;
+        }
+
+        .section {
+            background: var(--color-bg-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--color-border);
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--color-text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-subtitle {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .rarity-section {
+            margin-bottom: 24px;
+        }
+
+        .rarity-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 2px solid var(--color-border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rarity-header:hover {
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .rarity-stars {
+            font-size: 1.25rem;
+            color: var(--color-warning);
+        }
+
+        .rarity-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+        }
+
+        .rarity-toggle {
+            margin-left: auto;
+            font-size: 1.25rem;
+            color: var(--color-text-muted);
+            transition: transform 0.2s;
+        }
+
+        .rarity-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .weapon-item {
+            background: var(--color-bg-tertiary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .weapon-icon {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            flex-shrink: 0;
+            margin-bottom: 8px;
+        }
+
+        .weapon-list.collapsed {
+            display: none;
+        }
+
+        .weapon-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .weapon-item {
+            background: var(--color-bg-tertiary);
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .weapon-name {
+            text-align: center;
+            font-size: 0.875rem;
+            line-height: 1.3;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .weapon-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-bg-primary);
+            border: 2px solid var(--color-accent);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            min-width: 250px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .weapon-item:hover .weapon-tooltip {
+            opacity: 1;
+        }
+
+        .tooltip-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.875rem;
+        }
+
+        .tooltip-stat:last-child {
+            margin-bottom: 0;
+        }
+
+        .tooltip-label {
+            color: var(--color-text-muted);
+            font-weight: 500;
+        }
+
+        .tooltip-value {
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        .weapon-item:hover {
+            border-color: var(--color-accent);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .weapon-item.selected {
+            border-color: var(--color-accent);
+            background: rgba(56, 189, 248, 0.15);
+        }
+
+        .weapon-item.has-essence {
+            border-color: var(--color-success);
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        .checkbox {
+            display: none;
+        }
+
+        .stats-selector {
+            margin-top: 20px;
+        }
+
+        .stat-group {
+            margin-bottom: 20px;
+        }
+
+        .stat-group h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .stat-limit {
+            font-size: 0.875rem;
+            color: var(--color-warning);
+            margin-left: 8px;
+        }
+
+        .stat-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .stat-chip {
+            background: var(--color-bg-tertiary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+
+        .stat-chip:hover {
+            border-color: var(--color-accent);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .stat-chip.selected {
+            border-color: var(--color-accent);
+            background: rgba(56, 189, 248, 0.2);
+            color: var(--color-accent);
+            font-weight: 500;
+        }
+
+        .stat-chip.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .stat-chip.auto-selected {
+            border-color: var(--color-success);
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--color-success);
+            font-weight: 500;
+        }
+
+        .btn {
+            background: var(--color-accent);
+            color: var(--color-bg-primary);
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .btn:hover {
+            background: var(--color-accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: var(--color-bg-tertiary);
+            color: var(--color-text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.visible {
+            display: block;
+        }
+
+        .location-card {
+            background: var(--color-bg-tertiary);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid var(--color-accent);
+        }
+
+        .location-card.best {
+            border-left-color: var(--color-success);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .location-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .location-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .match-score {
+            background: var(--color-accent);
+            color: var(--color-bg-primary);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .location-card.best .match-score {
+            background: var(--color-success);
+        }
+
+        .stat-matches {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-match-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.875rem;
+        }
+
+        .stat-category {
+            color: var(--color-text-muted);
+            min-width: 120px;
+        }
+
+        .stat-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .stat-badge {
+            background: var(--color-bg-secondary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .stat-badge.match {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--color-success);
+            border: 1px solid var(--color-success);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: var(--color-text-muted);
+        }
+
+        .legend {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 16px;
+            font-size: 0.875rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid;
+        }
+
+        .legend-box.owned {
+            border-color: var(--color-accent);
+            background: rgba(56, 189, 248, 0.15);
+        }
+
+        .legend-box.essence {
+            border-color: var(--color-success);
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        .reset-btn {
+            background: var(--color-bg-tertiary);
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border);
+            padding: 8px 24px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 12px;
+        }
+
+        .reset-btn:hover {
+            background: var(--color-bg-primary);
+            border-color: var(--color-accent);
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-weapon-item {
+            background: var(--color-bg-tertiary);
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .result-weapon-item:hover {
+            border-color: var(--color-accent);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .result-weapon-item.selected {
+            border-color: var(--color-accent);
+            background: rgba(56, 189, 248, 0.15);
+        }
+
+        .result-weapon-item.has-essence {
+            border-color: var(--color-success);
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .weapon-list {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .weapon-icon {
+                width: 64px;
+                height: 64px;
+            }
+
+            .location-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Essence Farm Optimizer</h1>
+        
+        <div class="header-actions">
+            <button class="reset-btn" onclick="resetAll()">Сбросить всё</button>
+        </div>
+
+        <div class="section">
+            <h2>🗡️ Оружие</h2>
+            <div class="section-subtitle">
+                <strong>Левый клик:</strong> Отметить оружие, для которого нужно фармить эссенцию (синий)<br>
+                <strong>Правый клик:</strong> Отметить оружие с уже готовой эссенцией (зелёный, не будет учитываться в фарме)
+            </div>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-box owned"></div>
+                    <span>Есть на аккаунте</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-box essence"></div>
+                    <span>Эссенция готова</span>
+                </div>
+            </div>
+
+            <div id="weaponList"></div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Желаемые статы</h2>
+            <div class="section-subtitle">Выберите статы для эссенции оружия, которое нужно фармить</div>
+            
+            <div class="stats-selector">
+                <div class="stat-group">
+                    <h3>Attribute Stats <span class="stat-limit">(максимум 3 из 5)</span></h3>
+                    <div class="stat-chips" id="attributeStats"></div>
+                </div>
+
+                <div class="stat-group">
+                    <h3>Secondary Stats <span class="stat-limit">(выбрать 1)</span></h3>
+                    <div class="stat-chips" id="secondaryStats"></div>
+                </div>
+
+                <div class="stat-group">
+                    <h3>Skill Stats <span class="stat-limit">(выбрать 1)</span></h3>
+                    <div class="stat-chips" id="skillStats"></div>
+                </div>
+            </div>
+
+            <button class="btn" id="calculateBtn" onclick="calculateBestLocation()" disabled>
+                Найти лучшую локацию
+            </button>
+        </div>
+
+        <div class="section results" id="resultsSection">
+            <h2>🎯 Результаты</h2>
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const weaponsData = {
+            "Artzy Tyrannical": {"rarity": 6, "attribute_stats": "Intellect Boost", "secondary_stats": "Critical Rate Boost", "skill_stats": "Fracture"},
+            "Chivalric Virtues": {"rarity": 6, "attribute_stats": "Will Boost", "secondary_stats": "HP Boost", "skill_stats": "Medicant"},
+            "Clannibal": {"rarity": 6, "attribute_stats": "Main Attribute Boost", "secondary_stats": "Arts DMG Boost", "skill_stats": "Infliction"},
+            "Delivery Guaranteed": {"rarity": 6, "attribute_stats": "Will Boost", "secondary_stats": "Ultimate Gain Efficiency Boost", "skill_stats": "Pursuit"},
+            "Detonation Unit": {"rarity": 6, "attribute_stats": "Main Attribute Boost", "secondary_stats": "Arts Intensity Boost", "skill_stats": "Detonate"},
+            "Dreams of the Starry Beach": {"rarity": 6, "attribute_stats": "Intellect Boost", "secondary_stats": "Treatment Efficiency Boost", "skill_stats": "Infliction"},
+            "Eminent Repute": {"rarity": 6, "attribute_stats": "Main Attribute Boost", "secondary_stats": "Physical DMG Boost", "skill_stats": "Brutality"},
+            "Exemplar": {"rarity": 6, "attribute_stats": "Main Attribute Boost", "secondary_stats": "ATK Boost", "skill_stats": "Suppression"},
+            "Forgeborn Scathe": {"rarity": 6, "attribute_stats": "Intellect Boost", "secondary_stats": "ATK Boost", "skill_stats": "Twilight"},
+            "Former Finery": {"rarity": 6, "attribute_stats": "Will Boost", "secondary_stats": "HP Boost", "skill_stats": "Efficacy"},
+            "Grand Vision": {"rarity": 6, "attribute_stats": "Agility Boost", "secondary_stats": "ATK Boost", "skill_stats": "Infliction"},
+            "JET": {"rarity": 6, "attribute_stats": "Main Attribute Boost", "secondary_stats": "ATK Boost", "skill_stats": "Suppression"},
+            "Khravengger": {"rarity": 6, "attribute_stats": "Strength Boost", "secondary_stats": "ATK Boost", "skill_stats": "Detonate"},
+            "Mountain Bearer": {"rarity": 6, "attribute_stats": "Agility Boost", "secondary_stats": "Physical DMG Boost", "skill_stats": "Efficacy"},
+            "Navigator": {"rarity": 6, "attribute_stats": "Intellect Boost", "secondary_stats": "Cryo DMG Boost", "skill_stats": "Infliction"},
+            "Never Rest": {"rarity": 6, "attribute_stats": "Will Boost", "secondary_stats": "ATK Boost", "skill_stats": "Flow"},
+            "Oblivion": {"rarity": 6, "attribute_stats": "Intellect Boost", "secondary_stats": "Arts DMG Boost", "skill_stats": "Twilight"},
+            "Opus: Etch Figure": {"rarity": 6, "attribute_stats": "Will Boost", "secondary_stats": "Nature DMG Boost", "skill_stats": "Suppression"},
+            "Rapid Ascent": {"rarity": 6, "attribute_stats": "Main Attribute Boost", "secondary_stats": "Critical Rate Boost", "skill_stats": "Twilight"},
+            "Sundered Prince": {"rarity": 6, "attribute_stats": "Strength Boost", "secondary_stats": "Critical Rate Boost", "skill_stats": "Crusher"},
+            "Thermite Cutter": {"rarity": 6, "attribute_stats": "Will Boost", "secondary_stats": "ATK Boost", "skill_stats": "Flow"},
+            "Thunderberge": {"rarity": 6, "attribute_stats": "Strength Boost", "secondary_stats": "HP Boost", "skill_stats": "Medicant"},
+            "Umbral Torch": {"rarity": 6, "attribute_stats": "Intellect Boost", "secondary_stats": "Heat DMG Boost", "skill_stats": "Infliction"},
+            "Valiant": {"rarity": 6, "attribute_stats": "Agility Boost", "secondary_stats": "Physical DMG Boost", "skill_stats": "Combative"},
+            "Wedge": {"rarity": 6, "attribute_stats": "Main Attribute Boost", "secondary_stats": "Critical Rate Boost", "skill_stats": "Infliction"},
+            "White Night Nova": {"rarity": 6, "attribute_stats": "Main Attribute Boost", "secondary_stats": "Arts Intensity Boost", "skill_stats": "Infliction"},
+            "Ancient Canal": {"rarity": 5, "attribute_stats": "Strength Boost", "secondary_stats": "Arts Intensity Boost", "skill_stats": "Brutality"},
+            "Aspirant": {"rarity": 5, "attribute_stats": "Agility Boost", "secondary_stats": "Physical DMG Boost", "skill_stats": "Twilight"},
+            "Chimeric Justice": {"rarity": 5, "attribute_stats": "Strength Boost", "secondary_stats": "Ultimate Gain Efficiency Boost", "skill_stats": "Brutality"},
+            "Cohesive Traction": {"rarity": 5, "attribute_stats": "Will Boost", "secondary_stats": "Electric DMG Boost", "skill_stats": "Suppression"},
+            "Finchaser 3.0": {"rarity": 5, "attribute_stats": "Strength Boost", "secondary_stats": "Cryo DMG Boost", "skill_stats": "Suppression"},
+            "Finishing Call": {"rarity": 5, "attribute_stats": "Strength Boost", "secondary_stats": "HP Boost", "skill_stats": "Medicant"},
+            "Fortmaker": {"rarity": 5, "attribute_stats": "Intellect Boost", "secondary_stats": "Ultimate Gain Efficiency Boost", "skill_stats": "Inspiring"},
+            "Freedom to Proselytize": {"rarity": 5, "attribute_stats": "Will Boost", "secondary_stats": "Treatment Efficiency Boost", "skill_stats": "Medicant"},
+            "Monaihe": {"rarity": 5, "attribute_stats": "Will Boost", "secondary_stats": "Ultimate Gain Efficiency Boost", "skill_stats": "Inspiring"},
+            "OBJ Arts Identifier": {"rarity": 5, "attribute_stats": "Intellect Boost", "secondary_stats": "Arts Intensity Boost", "skill_stats": "Pursuit"},
+            "OBJ Edge of Lightness": {"rarity": 5, "attribute_stats": "Agility Boost", "secondary_stats": "ATK Boost", "skill_stats": "Flow"},
+            "OBJ Heavy Burden": {"rarity": 5, "attribute_stats": "Strength Boost", "secondary_stats": "HP Boost", "skill_stats": "Efficacy"},
+            "OBJ Razorhorn": {"rarity": 5, "attribute_stats": "Will Boost", "secondary_stats": "Physical DMG Boost", "skill_stats": "Infliction"},
+            "OBJ Velocitous": {"rarity": 5, "attribute_stats": "Agility Boost", "secondary_stats": "Ultimate Gain Efficiency Boost", "skill_stats": "Detonate"},
+            "Opus: The Living": {"rarity": 5, "attribute_stats": "Agility Boost", "secondary_stats": "Arts DMG Boost", "skill_stats": "Infliction"},
+            "Rational Farewell": {"rarity": 5, "attribute_stats": "Strength Boost", "secondary_stats": "Heat DMG Boost", "skill_stats": "Pursuit"},
+            "Seeker of Dark Lung": {"rarity": 5, "attribute_stats": "Strength Boost", "secondary_stats": "Ultimate Gain Efficiency Boost", "skill_stats": "Detonate"},
+            "Stanza of Memorials": {"rarity": 5, "attribute_stats": "Intellect Boost", "secondary_stats": "ATK Boost", "skill_stats": "Twilight"},
+            "Sundering Steel": {"rarity": 5, "attribute_stats": "Agility Boost", "secondary_stats": "Physical DMG Boost", "skill_stats": "Combative"},
+            "Twelve Questions": {"rarity": 5, "attribute_stats": "Agility Boost", "secondary_stats": "ATK Boost", "skill_stats": "Infliction"},
+            "Wild Wanderer": {"rarity": 5, "attribute_stats": "Intellect Boost", "secondary_stats": "Electric DMG Boost", "skill_stats": "Infliction"},
+            "Aggeloslayer": {"rarity": 4, "attribute_stats": "Will Boost", "secondary_stats": "Arts DMG Boost", "skill_stats": "Suppression"},
+            "Contingent Measure": {"rarity": 4, "attribute_stats": "Agility Boost", "secondary_stats": "Physical DMG Boost", "skill_stats": "Suppression"},
+            "Fluorescent Roc": {"rarity": 4, "attribute_stats": "Will Boost", "secondary_stats": "ATK Boost", "skill_stats": "Suppression"},
+            "Howling Guard": {"rarity": 4, "attribute_stats": "Intellect Boost", "secondary_stats": "ATK Boost", "skill_stats": "Suppression"},
+            "Hypernova Auto": {"rarity": 4, "attribute_stats": "Intellect Boost", "secondary_stats": "Arts DMG Boost", "skill_stats": "Inspiring"},
+            "Industry 0.1": {"rarity": 4, "attribute_stats": "Strength Boost", "secondary_stats": "ATK Boost", "skill_stats": "Suppression"},
+            "Long Road": {"rarity": 4, "attribute_stats": "Strength Boost", "secondary_stats": "Arts DMG Boost", "skill_stats": "Pursuit"},
+            "Pathfinder's Beacon": {"rarity": 4, "attribute_stats": "Agility Boost", "secondary_stats": "ATK Boost", "skill_stats": "Inspiring"},
+            "Quencher": {"rarity": 4, "attribute_stats": "Will Boost", "secondary_stats": "HP Boost", "skill_stats": "Crusher"},
+            "Wave Tide": {"rarity": 4, "attribute_stats": "Intellect Boost", "secondary_stats": "ATK Boost", "skill_stats": "Pursuit"}
+        };
+
+        const weapons = Object.keys(weaponsData).sort();
+
+        const locationsData = {
+            "The Hub": {
+                "attribute_stats": [
+                    "Agility Boost", "Strength Boost", "Will Boost",
+                    "Intellect Boost", "Main Attribute Boost"
+                ],
+                "secondary_stats": [
+                    "ATK Boost", "Heat DMG Boost", "Electric DMG Boost",
+                    "Cryo DMG Boost", "Nature DMG Boost", "Arts Intensity Boost",
+                    "Ultimate Gain Efficiency Boost", "Arts DMG Boost"
+                ],
+                "skill_stats": [
+                    "Assault", "Suppression", "Pursuit", "Crusher",
+                    "Combative", "Detonate", "Flow", "Efficacy"
+                ]
+            },
+            "Originium Science Park": {
+                "attribute_stats": [
+                    "Agility Boost", "Strength Boost", "Will Boost",
+                    "Intellect Boost", "Main Attribute Boost"
+                ],
+                "secondary_stats": [
+                    "ATK Boost", "Physical DMG Boost", "Electric DMG Boost",
+                    "Cryo DMG Boost", "Nature DMG Boost", "Critical Rate Boost",
+                    "Ultimate Gain Efficiency Boost", "Arts DMG Boost"
+                ],
+                "skill_stats": [
+                    "Suppression", "Pursuit", "Inspiring", "Combative",
+                    "Infliction", "Medicant", "Fracture", "Efficacy"
+                ]
+            },
+            "Origin Lodespring": {
+                "attribute_stats": [
+                    "Agility Boost", "Strength Boost", "Will Boost",
+                    "Intellect Boost", "Main Attribute Boost"
+                ],
+                "secondary_stats": [
+                    "HP Boost", "Physical DMG Boost", "Heat DMG Boost",
+                    "Cryo DMG Boost", "Nature DMG Boost", "Critical Rate Boost",
+                    "Arts Intensity Boost", "Treatment Efficiency Boost"
+                ],
+                "skill_stats": [
+                    "Assault", "Suppression", "Combative", "Brutality",
+                    "Infliction", "Detonate", "Twilight", "Efficacy"
+                ]
+            },
+            "Power Plateau": {
+                "attribute_stats": [
+                    "Agility Boost", "Strength Boost", "Will Boost",
+                    "Intellect Boost", "Main Attribute Boost"
+                ],
+                "secondary_stats": [
+                    "ATK Boost", "HP Boost", "Physical DMG Boost",
+                    "Heat DMG Boost", "Nature DMG Boost", "Critical Rate Boost",
+                    "Arts Intensity Boost", "Treatment Efficiency Boost"
+                ],
+                "skill_stats": [
+                    "Pursuit", "Crusher", "Inspiring", "Brutality",
+                    "Infliction", "Medicant", "Fracture", "Flow"
+                ]
+            },
+            "Wuling City": {
+                "attribute_stats": [
+                    "Agility Boost", "Strength Boost", "Will Boost",
+                    "Intellect Boost", "Main Attribute Boost"
+                ],
+                "secondary_stats": [
+                    "ATK Boost", "HP Boost", "Electric DMG Boost",
+                    "Cryo DMG Boost", "Critical Rate Boost", "Ultimate Gain Efficiency Boost",
+                    "Arts DMG Boost", "Treatment Efficiency Boost"
+                ],
+                "skill_stats": [
+                    "Assault", "Crusher", "Brutality", "Medicant",
+                    "Fracture", "Detonate", "Twilight", "Flow"
+                ]
+            }
+        };
+
+        const state = {
+            ownedWeapons: new Set(),
+            essenceReady: new Set(),
+            selectedAttributeStats: new Set(),
+            selectedSecondaryStat: null,
+            selectedSkillStat: null
+        };
+
+        function initWeapons() {
+            const weaponList = document.getElementById('weaponList');
+            const weaponsByRarity = {6: [], 5: [], 4: []};
+
+            weapons.forEach(weapon => {
+                const rarity = weaponsData[weapon].rarity;
+                weaponsByRarity[rarity].push(weapon);
+            });
+
+            [6, 5, 4].forEach(rarity => {
+                const section = document.createElement('div');
+                section.className = 'rarity-section';
+
+                const header = document.createElement('div');
+                header.className = 'rarity-header';
+                header.innerHTML = `
+                    <span class="rarity-stars">${'★'.repeat(rarity)}</span>
+                    <span class="rarity-label">${rarity}-Star Weapons</span>
+                    <span class="rarity-toggle ${rarity !== 6 ? 'collapsed' : ''}">▼</span>
+                `;
+                header.onclick = () => toggleRarity(rarity);
+                section.appendChild(header);
+
+                const grid = document.createElement('div');
+                grid.className = `weapon-list ${rarity !== 6 ? 'collapsed' : ''}`;
+                grid.dataset.rarity = rarity;
+
+                weaponsByRarity[rarity].forEach(weapon => {
+                    const weaponData = weaponsData[weapon];
+                    const div = document.createElement('div');
+                    div.className = 'weapon-item';
+                    const iconPath = `weapons/${weapon.replace(/[:\s]/g, '_')}.png`;
+                    div.innerHTML = `
+                        <img src="${iconPath}" alt="${weapon}" class="weapon-icon" onerror="this.style.display='none'">
+                        <span class="weapon-name">${weapon}</span>
+                        <div class="weapon-tooltip">
+                            <div class="tooltip-stat">
+                                <span class="tooltip-label">Attribute:</span>
+                                <span class="tooltip-value">${weaponData.attribute_stats}</span>
+                            </div>
+                            <div class="tooltip-stat">
+                                <span class="tooltip-label">Secondary:</span>
+                                <span class="tooltip-value">${weaponData.secondary_stats}</span>
+                            </div>
+                            <div class="tooltip-stat">
+                                <span class="tooltip-label">Skill:</span>
+                                <span class="tooltip-value">${weaponData.skill_stats}</span>
+                            </div>
+                        </div>
+                    `;
+                    div.onclick = () => toggleWeapon(weapon, div);
+                    div.oncontextmenu = (e) => {
+                        e.preventDefault();
+                        toggleEssence(weapon, div);
+                    };
+                    grid.appendChild(div);
+                });
+
+                section.appendChild(grid);
+                weaponList.appendChild(section);
+            });
+        }
+
+        function toggleWeapon(weapon, element) {
+            if (state.essenceReady.has(weapon)) {
+                return;
+            }
+            
+            if (state.ownedWeapons.has(weapon)) {
+                state.ownedWeapons.delete(weapon);
+                element.classList.remove('selected');
+            } else {
+                state.ownedWeapons.add(weapon);
+                element.classList.add('selected');
+            }
+            
+            autoSelectStats();
+        }
+
+        function toggleEssence(weapon, element) {
+            if (state.essenceReady.has(weapon)) {
+                state.essenceReady.delete(weapon);
+                state.ownedWeapons.delete(weapon);
+                element.classList.remove('has-essence');
+                element.classList.remove('selected');
+            } else {
+                state.essenceReady.add(weapon);
+                state.ownedWeapons.add(weapon);
+                element.classList.add('has-essence');
+                element.classList.remove('selected');
+            }
+            
+            autoSelectStats();
+        }
+
+        function initStats() {
+            const allStats = {
+                attribute: new Set(),
+                secondary: new Set(),
+                skill: new Set()
+            };
+
+            Object.values(locationsData).forEach(location => {
+                location.attribute_stats.forEach(stat => allStats.attribute.add(stat));
+                location.secondary_stats.forEach(stat => allStats.secondary.add(stat));
+                location.skill_stats.forEach(stat => allStats.skill.add(stat));
+            });
+
+            const attributeContainer = document.getElementById('attributeStats');
+            Array.from(allStats.attribute).sort().forEach(stat => {
+                const chip = document.createElement('div');
+                chip.className = 'stat-chip';
+                chip.textContent = stat;
+                chip.onclick = () => toggleAttributeStat(stat, chip);
+                attributeContainer.appendChild(chip);
+            });
+
+            const secondaryContainer = document.getElementById('secondaryStats');
+            Array.from(allStats.secondary).sort().forEach(stat => {
+                const chip = document.createElement('div');
+                chip.className = 'stat-chip';
+                chip.textContent = stat;
+                chip.onclick = () => toggleSecondaryStat(stat, chip);
+                secondaryContainer.appendChild(chip);
+            });
+
+            const skillContainer = document.getElementById('skillStats');
+            Array.from(allStats.skill).sort().forEach(stat => {
+                const chip = document.createElement('div');
+                chip.className = 'stat-chip';
+                chip.textContent = stat;
+                chip.onclick = () => toggleSkillStat(stat, chip);
+                skillContainer.appendChild(chip);
+            });
+        }
+
+        function toggleAttributeStat(stat, element) {
+            if (element.classList.contains('disabled') || element.classList.contains('auto-selected')) {
+                return;
+            }
+
+            if (state.selectedAttributeStats.has(stat)) {
+                state.selectedAttributeStats.delete(stat);
+                element.classList.remove('selected');
+            } else if (state.selectedAttributeStats.size < 3) {
+                state.selectedAttributeStats.add(stat);
+                element.classList.add('selected');
+            }
+            highlightMatchingWeapons();
+            updateCalculateButton();
+        }
+
+        function toggleSecondaryStat(stat, element) {
+            if (state.selectedSkillStat !== null || element.classList.contains('disabled') || element.classList.contains('auto-selected')) {
+                return;
+            }
+
+            const container = document.getElementById('secondaryStats');
+            container.querySelectorAll('.stat-chip').forEach(chip => {
+                chip.classList.remove('selected');
+            });
+            
+            if (state.selectedSecondaryStat === stat) {
+                state.selectedSecondaryStat = null;
+                updateSkillStatsAvailability(true);
+            } else {
+                state.selectedSecondaryStat = stat;
+                element.classList.add('selected');
+                updateSkillStatsAvailability(false);
+            }
+            highlightMatchingWeapons();
+            updateCalculateButton();
+        }
+
+        function toggleSkillStat(stat, element) {
+            if (state.selectedSecondaryStat !== null || element.classList.contains('disabled') || element.classList.contains('auto-selected')) {
+                return;
+            }
+
+            const container = document.getElementById('skillStats');
+            container.querySelectorAll('.stat-chip').forEach(chip => {
+                chip.classList.remove('selected');
+            });
+            
+            if (state.selectedSkillStat === stat) {
+                state.selectedSkillStat = null;
+                updateSecondaryStatsAvailability(true);
+            } else {
+                state.selectedSkillStat = stat;
+                element.classList.add('selected');
+                updateSecondaryStatsAvailability(false);
+            }
+            highlightMatchingWeapons();
+            updateCalculateButton();
+        }
+
+        function highlightMatchingWeapons() {
+            const weaponItems = document.querySelectorAll('.weapon-item');
+            
+            weaponItems.forEach(item => {
+                const weaponName = item.querySelector('.weapon-name').textContent;
+                const weaponData = weaponsData[weaponName];
+                
+                // Remove previous highlight
+                item.style.boxShadow = '';
+                
+                // Don't highlight if weapon is already selected
+                if (state.ownedWeapons.has(weaponName)) {
+                    return;
+                }
+                
+                // Check if weapon matches selected stats
+                const attributeMatch = state.selectedAttributeStats.size === 0 || 
+                    state.selectedAttributeStats.has(weaponData.attribute_stats);
+                
+                const secondaryMatch = !state.selectedSecondaryStat || 
+                    weaponData.secondary_stats === state.selectedSecondaryStat;
+                
+                const skillMatch = !state.selectedSkillStat || 
+                    weaponData.skill_stats === state.selectedSkillStat;
+                
+                if (attributeMatch && secondaryMatch && skillMatch) {
+                    item.style.boxShadow = '0 0 0 3px var(--color-warning)';
+                }
+            });
+        }
+
+        function updateSecondaryStatsAvailability(available) {
+            const container = document.getElementById('secondaryStats');
+            container.querySelectorAll('.stat-chip').forEach(chip => {
+                if (!chip.classList.contains('auto-selected')) {
+                    if (available) {
+                        chip.classList.remove('disabled');
+                    } else {
+                        chip.classList.add('disabled');
+                    }
+                }
+            });
+        }
+
+        function updateSkillStatsAvailability(available) {
+            const container = document.getElementById('skillStats');
+            container.querySelectorAll('.stat-chip').forEach(chip => {
+                if (!chip.classList.contains('auto-selected')) {
+                    if (available) {
+                        chip.classList.remove('disabled');
+                    } else {
+                        chip.classList.add('disabled');
+                    }
+                }
+            });
+        }
+
+        function autoSelectStats() {
+            const weaponsNeedingEssence = Array.from(state.ownedWeapons)
+                .filter(weapon => !state.essenceReady.has(weapon));
+
+            state.selectedAttributeStats.clear();
+            state.selectedSecondaryStat = null;
+            state.selectedSkillStat = null;
+
+            document.querySelectorAll('.stat-chip').forEach(chip => {
+                chip.classList.remove('selected', 'auto-selected', 'disabled');
+            });
+
+            // Clear weapon highlights
+            document.querySelectorAll('.weapon-item').forEach(item => {
+                item.style.boxShadow = '';
+            });
+
+            if (weaponsNeedingEssence.length === 0) {
+                updateCalculateButton();
+                return;
+            }
+
+            const statCounts = {
+                attribute: {},
+                secondary: {},
+                skill: {}
+            };
+
+            weaponsNeedingEssence.forEach(weapon => {
+                const weaponData = weaponsData[weapon];
+                statCounts.attribute[weaponData.attribute_stats] = (statCounts.attribute[weaponData.attribute_stats] || 0) + 1;
+                statCounts.secondary[weaponData.secondary_stats] = (statCounts.secondary[weaponData.secondary_stats] || 0) + 1;
+                statCounts.skill[weaponData.skill_stats] = (statCounts.skill[weaponData.skill_stats] || 0) + 1;
+            });
+
+            const sortedAttributes = Object.entries(statCounts.attribute)
+                .sort((a, b) => b[1] - a[1])
+                .map(([stat]) => stat);
+
+            const allAttributes = ["Agility Boost", "Strength Boost", "Will Boost", "Intellect Boost", "Main Attribute Boost"];
+            const selectedAttributes = sortedAttributes.slice(0, Math.min(3, sortedAttributes.length));
+            
+            if (selectedAttributes.length < 3) {
+                const remaining = allAttributes.filter(attr => !selectedAttributes.includes(attr));
+                selectedAttributes.push(...remaining.slice(0, 3 - selectedAttributes.length));
+            }
+
+            selectedAttributes.forEach(stat => {
+                state.selectedAttributeStats.add(stat);
+                const chip = Array.from(document.getElementById('attributeStats').children)
+                    .find(el => el.textContent === stat);
+                if (chip) chip.classList.add('auto-selected');
+            });
+
+            const uniqueSecondaryStats = new Set(Object.keys(statCounts.secondary));
+            const uniqueSkillStats = new Set(Object.keys(statCounts.skill));
+
+            if (uniqueSecondaryStats.size === 1 && uniqueSkillStats.size > 1) {
+                const onlySecondaryStat = Array.from(uniqueSecondaryStats)[0];
+                state.selectedSecondaryStat = onlySecondaryStat;
+                const chip = Array.from(document.getElementById('secondaryStats').children)
+                    .find(el => el.textContent === onlySecondaryStat);
+                if (chip) {
+                    chip.classList.add('auto-selected');
+                    updateSkillStatsAvailability(false);
+                }
+            } else if (uniqueSkillStats.size === 1 && uniqueSecondaryStats.size > 1) {
+                const onlySkillStat = Array.from(uniqueSkillStats)[0];
+                state.selectedSkillStat = onlySkillStat;
+                const chip = Array.from(document.getElementById('skillStats').children)
+                    .find(el => el.textContent === onlySkillStat);
+                if (chip) {
+                    chip.classList.add('auto-selected');
+                    updateSecondaryStatsAvailability(false);
+                }
+            } else if (uniqueSecondaryStats.size === 1 && uniqueSkillStats.size === 1) {
+                const onlySecondaryStat = Array.from(uniqueSecondaryStats)[0];
+                state.selectedSecondaryStat = onlySecondaryStat;
+                const chip = Array.from(document.getElementById('secondaryStats').children)
+                    .find(el => el.textContent === onlySecondaryStat);
+                if (chip) {
+                    chip.classList.add('auto-selected');
+                    updateSkillStatsAvailability(false);
+                }
+            } else {
+                const sortedSecondaryStats = Object.entries(statCounts.secondary)
+                    .sort((a, b) => b[1] - a[1]);
+                const sortedSkillStats = Object.entries(statCounts.skill)
+                    .sort((a, b) => b[1] - a[1]);
+
+                const topSecondaryCount = sortedSecondaryStats[0] ? sortedSecondaryStats[0][1] : 0;
+                const topSkillCount = sortedSkillStats[0] ? sortedSkillStats[0][1] : 0;
+
+                if (topSkillCount > topSecondaryCount) {
+                    const topSkillStat = sortedSkillStats[0];
+                    state.selectedSkillStat = topSkillStat[0];
+                    const chip = Array.from(document.getElementById('skillStats').children)
+                        .find(el => el.textContent === topSkillStat[0]);
+                    if (chip) {
+                        chip.classList.add('auto-selected');
+                        updateSecondaryStatsAvailability(false);
+                    }
+                } else if (topSecondaryCount > topSkillCount) {
+                    const topSecondaryStat = sortedSecondaryStats[0];
+                    state.selectedSecondaryStat = topSecondaryStat[0];
+                    const chip = Array.from(document.getElementById('secondaryStats').children)
+                        .find(el => el.textContent === topSecondaryStat[0]);
+                    if (chip) {
+                        chip.classList.add('auto-selected');
+                        updateSkillStatsAvailability(false);
+                    }
+                } else {
+                    const topSecondaryStat = sortedSecondaryStats[0];
+                    state.selectedSecondaryStat = topSecondaryStat[0];
+                    const chip = Array.from(document.getElementById('secondaryStats').children)
+                        .find(el => el.textContent === topSecondaryStat[0]);
+                    if (chip) {
+                        chip.classList.add('auto-selected');
+                        updateSkillStatsAvailability(false);
+                    }
+                }
+            }
+
+            updateCalculateButton();
+        }
+
+        function updateCalculateButton() {
+            const btn = document.getElementById('calculateBtn');
+            const hasRequiredStats = 
+                state.selectedAttributeStats.size > 0 &&
+                ((state.selectedSecondaryStat !== null && state.selectedSkillStat === null) ||
+                 (state.selectedSkillStat !== null && state.selectedSecondaryStat === null));
+            
+            btn.disabled = !hasRequiredStats;
+        }
+
+        function calculateBestLocation() {
+            const weaponsNeedingEssence = Array.from(state.ownedWeapons)
+                .filter(weapon => !state.essenceReady.has(weapon));
+
+            if (weaponsNeedingEssence.length === 0) {
+                if (state.ownedWeapons.size === 0) {
+                    showNoResults('❌ Выберите хотя бы одно оружие для фарма (левый клик)');
+                } else {
+                    showNoResults('✅ У всех выбранных оружий уже есть эссенция! Если хотите фармить новое, отметьте его левым кликом (синим), а не правым (зелёным).');
+                }
+                return;
+            }
+
+            const desiredStats = {
+                attribute: Array.from(state.selectedAttributeStats),
+                secondary: state.selectedSecondaryStat,
+                skill: state.selectedSkillStat
+            };
+
+            const matchingWeapons = weaponsNeedingEssence.filter(weapon => {
+                const weaponData = weaponsData[weapon];
+                const attributeMatch = desiredStats.attribute.includes(weaponData.attribute_stats);
+                const secondaryMatch = state.selectedSecondaryStat ? 
+                    weaponData.secondary_stats === state.selectedSecondaryStat : true;
+                const skillMatch = state.selectedSkillStat ? 
+                    weaponData.skill_stats === state.selectedSkillStat : true;
+                
+                return attributeMatch && secondaryMatch && skillMatch;
+            });
+
+            // Filter weapons by location availability
+            const weaponsByLocation = {};
+            Object.entries(locationsData).forEach(([locationName, location]) => {
+                weaponsByLocation[locationName] = matchingWeapons.filter(weapon => {
+                    const weaponData = weaponsData[weapon];
+                    const hasAttribute = location.attribute_stats.includes(weaponData.attribute_stats);
+                    const hasSecondary = location.secondary_stats.includes(weaponData.secondary_stats);
+                    const hasSkill = location.skill_stats.includes(weaponData.skill_stats);
+                    return hasAttribute && hasSecondary && hasSkill;
+                });
+            });
+
+            if (matchingWeapons.length === 0) {
+                showNoResults('Ни одно из выбранных оружий не подходит под текущий набор статов. Попробуйте изменить выбор.');
+                return;
+            }
+
+            const activeStatType = state.selectedSecondaryStat ? 'secondary' : 'skill';
+            const locationScores = Object.entries(locationsData).map(([name, location]) => {
+                const matchedAttributes = desiredStats.attribute.filter(stat => 
+                    location.attribute_stats.includes(stat)
+                );
+
+                const hasSecondaryStat = desiredStats.secondary ? 
+                    location.secondary_stats.includes(desiredStats.secondary) : false;
+                const hasSkillStat = desiredStats.skill ? 
+                    location.skill_stats.includes(desiredStats.skill) : false;
+
+                const hasActiveStat = activeStatType === 'secondary' ? hasSecondaryStat : hasSkillStat;
+
+                // Calculate which weapons from ALL selected weapons can be farmed here
+                const allFarmableWeapons = weaponsNeedingEssence.filter(weapon => {
+                    const weaponData = weaponsData[weapon];
+                    const hasAttribute = location.attribute_stats.includes(weaponData.attribute_stats);
+                    const hasSecondary = location.secondary_stats.includes(weaponData.secondary_stats);
+                    const hasSkill = location.skill_stats.includes(weaponData.skill_stats);
+                    return hasAttribute && hasSecondary && hasSkill;
+                });
+
+                // Weapons matching selected stats specifically
+                const locationMatchingWeapons = weaponsByLocation[name] || [];
+                const matchedWeaponsCount = locationMatchingWeapons.length;
+                const totalWeaponsNeedingEssence = weaponsNeedingEssence.length;
+                const weaponMatchPercentage = Math.round((matchedWeaponsCount / totalWeaponsNeedingEssence) * 100);
+
+                // Total farmable percentage (all weapons, not just matching stats)
+                const totalFarmableCount = allFarmableWeapons.length;
+                const totalFarmablePercentage = Math.round((totalFarmableCount / totalWeaponsNeedingEssence) * 100);
+
+                const statMatchCount = matchedAttributes.length + (hasActiveStat ? 1 : 0);
+                const totalPossibleStats = desiredStats.attribute.length + 1;
+
+                return {
+                    name,
+                    matchedAttributes,
+                    hasActiveStat,
+                    hasSecondaryStat,
+                    hasSkillStat,
+                    activeStatType,
+                    activeStat: activeStatType === 'secondary' ? desiredStats.secondary : desiredStats.skill,
+                    secondaryStat: desiredStats.secondary,
+                    skillStat: desiredStats.skill,
+                    weaponMatchPercentage,
+                    matchedWeaponsCount,
+                    totalWeaponsCount: totalWeaponsNeedingEssence,
+                    statMatchCount,
+                    totalPossibleStats,
+                    locationMatchingWeapons,
+                    allFarmableWeapons,
+                    totalFarmableCount,
+                    totalFarmablePercentage,
+                    location
+                };
+            });
+
+            locationScores.sort((a, b) => {
+                // Primary: stat match count (attributes + secondary/skill)
+                const aStatMatches = a.matchedAttributes.length + (a.hasActiveStat ? 1 : 0);
+                const bStatMatches = b.matchedAttributes.length + (b.hasActiveStat ? 1 : 0);
+                
+                if (bStatMatches !== aStatMatches) {
+                    return bStatMatches - aStatMatches;
+                }
+                
+                // Secondary: total farmable weapons percentage
+                if (b.totalFarmablePercentage !== a.totalFarmablePercentage) {
+                    return b.totalFarmablePercentage - a.totalFarmablePercentage;
+                }
+                
+                // Tertiary: matching weapons for selected stats
+                return b.weaponMatchPercentage - a.weaponMatchPercentage;
+            });
+
+            // Find alternative stat combinations if top location covers 100%
+            const topLocation = locationScores[0];
+            let alternativeStats = null;
+            
+            if (topLocation.weaponMatchPercentage === 100) {
+                const remainingWeapons = weaponsNeedingEssence.filter(
+                    weapon => !topLocation.locationMatchingWeapons.includes(weapon)
+                );
+                
+                if (remainingWeapons.length > 0) {
+                    const altStatCounts = {
+                        attribute: {},
+                        secondary: {},
+                        skill: {}
+                    };
+
+                    remainingWeapons.forEach(weapon => {
+                        const weaponData = weaponsData[weapon];
+                        altStatCounts.attribute[weaponData.attribute_stats] = (altStatCounts.attribute[weaponData.attribute_stats] || 0) + 1;
+                        altStatCounts.secondary[weaponData.secondary_stats] = (altStatCounts.secondary[weaponData.secondary_stats] || 0) + 1;
+                        altStatCounts.skill[weaponData.skill_stats] = (altStatCounts.skill[weaponData.skill_stats] || 0) + 1;
+                    });
+
+                    const sortedAltAttributes = Object.entries(altStatCounts.attribute)
+                        .sort((a, b) => b[1] - a[1])
+                        .map(([stat]) => stat);
+                    
+                    const allAttributes = ["Agility Boost", "Strength Boost", "Will Boost", "Intellect Boost", "Main Attribute Boost"];
+                    const selectedAltAttributes = sortedAltAttributes.slice(0, Math.min(3, sortedAltAttributes.length));
+                    
+                    if (selectedAltAttributes.length < 3) {
+                        const remaining = allAttributes.filter(attr => !selectedAltAttributes.includes(attr));
+                        selectedAltAttributes.push(...remaining.slice(0, 3 - selectedAltAttributes.length));
+                    }
+
+                    const uniqueAltSecondaryStats = new Set(Object.keys(altStatCounts.secondary));
+                    const uniqueAltSkillStats = new Set(Object.keys(altStatCounts.skill));
+
+                    let altSecondaryStat = null;
+                    let altSkillStat = null;
+
+                    if (uniqueAltSecondaryStats.size === 1 && uniqueAltSkillStats.size > 1) {
+                        altSecondaryStat = Array.from(uniqueAltSecondaryStats)[0];
+                    } else if (uniqueAltSkillStats.size === 1 && uniqueAltSecondaryStats.size > 1) {
+                        altSkillStat = Array.from(uniqueAltSkillStats)[0];
+                    } else if (uniqueAltSecondaryStats.size === 1 && uniqueAltSkillStats.size === 1) {
+                        altSecondaryStat = Array.from(uniqueAltSecondaryStats)[0];
+                    } else {
+                        const sortedAltSecondaryStats = Object.entries(altStatCounts.secondary)
+                            .sort((a, b) => b[1] - a[1]);
+                        const sortedAltSkillStats = Object.entries(altStatCounts.skill)
+                            .sort((a, b) => b[1] - a[1]);
+
+                        const topAltSecondaryCount = sortedAltSecondaryStats[0] ? sortedAltSecondaryStats[0][1] : 0;
+                        const topAltSkillCount = sortedAltSkillStats[0] ? sortedAltSkillStats[0][1] : 0;
+
+                        if (topAltSkillCount > topAltSecondaryCount) {
+                            altSkillStat = sortedAltSkillStats[0][0];
+                        } else {
+                            altSecondaryStat = sortedAltSecondaryStats[0][0];
+                        }
+                    }
+
+                    alternativeStats = {
+                        weapons: remainingWeapons,
+                        attribute: selectedAltAttributes,
+                        secondary: altSecondaryStat,
+                        skill: altSkillStat
+                    };
+
+                    // Calculate best location for alternative stats
+                    const altLocationScores = Object.entries(locationsData).map(([name, location]) => {
+                        const altMatchedWeapons = remainingWeapons.filter(weapon => {
+                            const weaponData = weaponsData[weapon];
+                            const hasAttribute = location.attribute_stats.includes(weaponData.attribute_stats);
+                            const hasSecondary = location.secondary_stats.includes(weaponData.secondary_stats);
+                            const hasSkill = location.skill_stats.includes(weaponData.skill_stats);
+                            return hasAttribute && hasSecondary && hasSkill;
+                        });
+
+                        const matchedAttributes = selectedAltAttributes.filter(stat => 
+                            location.attribute_stats.includes(stat)
+                        );
+
+                        const hasSecondaryStat = altSecondaryStat ? 
+                            location.secondary_stats.includes(altSecondaryStat) : false;
+                        const hasSkillStat = altSkillStat ? 
+                            location.skill_stats.includes(altSkillStat) : false;
+
+                        const activeStatType = altSecondaryStat ? 'secondary' : 'skill';
+                        const hasActiveStat = activeStatType === 'secondary' ? hasSecondaryStat : hasSkillStat;
+
+                        const matchedWeaponsCount = altMatchedWeapons.length;
+                        const weaponMatchPercentage = Math.round((matchedWeaponsCount / remainingWeapons.length) * 100);
+
+                        const statMatchCount = matchedAttributes.length + (hasActiveStat ? 1 : 0);
+                        const totalPossibleStats = selectedAltAttributes.length + 1;
+
+                        return {
+                            name,
+                            matchedAttributes,
+                            hasActiveStat,
+                            hasSecondaryStat,
+                            hasSkillStat,
+                            activeStatType,
+                            activeStat: activeStatType === 'secondary' ? altSecondaryStat : altSkillStat,
+                            secondaryStat: altSecondaryStat,
+                            skillStat: altSkillStat,
+                            weaponMatchPercentage,
+                            matchedWeaponsCount,
+                            totalWeaponsCount: remainingWeapons.length,
+                            statMatchCount,
+                            totalPossibleStats,
+                            locationMatchingWeapons: altMatchedWeapons,
+                            location
+                        };
+                    });
+
+                    altLocationScores.sort((a, b) => {
+                        if (b.weaponMatchPercentage !== a.weaponMatchPercentage) {
+                            return b.weaponMatchPercentage - a.weaponMatchPercentage;
+                        }
+                        const aStatMatches = a.matchedAttributes.length + (a.hasActiveStat ? 1 : 0);
+                        const bStatMatches = b.matchedAttributes.length + (b.hasActiveStat ? 1 : 0);
+                        return bStatMatches - aStatMatches;
+                    });
+
+                    alternativeStats.bestLocation = altLocationScores[0];
+                }
+            }
+
+            displayResults(locationScores, desiredStats, matchingWeapons, alternativeStats);
+        }
+
+        function displayResults(locations, desiredStats, matchingWeapons, alternativeStats = null) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            resultsContainer.innerHTML = `
+                <div class="section-subtitle" style="margin-bottom: 1rem;">
+                    <strong>Выбранные статы:</strong> ${[...desiredStats.attribute, state.selectedSecondaryStat || state.selectedSkillStat].filter(Boolean).join(', ')}
+                </div>
+            `;
+
+            locations.forEach((loc, index) => {
+                const card = document.createElement('div');
+                card.className = `location-card ${index === 0 ? 'best' : ''}`;
+                
+                let statsHTML = '';
+                
+                if (loc.allFarmableWeapons && loc.allFarmableWeapons.length > 0) {
+                    statsHTML += `
+                        <div style="margin-bottom: 12px; padding: 8px; background: rgba(56, 189, 248, 0.1); border-radius: 6px;">
+                            <strong style="color: var(--color-accent);">Всё оружие доступное в этой локации (${loc.totalFarmableCount}/${loc.totalWeaponsCount}):</strong>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 8px;">
+                                ${loc.allFarmableWeapons.map(weapon => {
+                                    const iconPath = `weapons/${weapon.replace(/[:\s]/g, '_')}.png`;
+                                    const isSelected = state.ownedWeapons.has(weapon);
+                                    const hasEssence = state.essenceReady.has(weapon);
+                                    const classes = hasEssence ? 'has-essence' : (isSelected ? 'selected' : '');
+                                    return `
+                                        <div class="result-weapon-item ${classes}" data-weapon="${weapon}">
+                                            <img src="${iconPath}" alt="${weapon}" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
+                                            <span style="font-size: 0.75rem; text-align: center; line-height: 1.2;">${weapon}</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                if (loc.locationMatchingWeapons && loc.locationMatchingWeapons.length > 0) {
+                    statsHTML += `
+                        <div style="margin-bottom: 12px; padding: 8px; background: rgba(34, 197, 94, 0.1); border-radius: 6px;">
+                            <strong style="color: var(--color-success);">Оружие совпадающее с выбранными статами (${loc.matchedWeaponsCount}/${loc.totalWeaponsCount}):</strong>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 8px;">
+                                ${loc.locationMatchingWeapons.map(weapon => {
+                                    const iconPath = `weapons/${weapon.replace(/[:\s]/g, '_')}.png`;
+                                    const isSelected = state.ownedWeapons.has(weapon);
+                                    const hasEssence = state.essenceReady.has(weapon);
+                                    const classes = hasEssence ? 'has-essence' : (isSelected ? 'selected' : '');
+                                    return `
+                                        <div class="result-weapon-item ${classes}" data-weapon="${weapon}">
+                                            <img src="${iconPath}" alt="${weapon}" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
+                                            <span style="font-size: 0.75rem; text-align: center; line-height: 1.2;">${weapon}</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                statsHTML += '<div class="stat-matches">';
+                
+                statsHTML += `
+                    <div class="stat-match-row">
+                        <span class="stat-category">Attribute Stats:</span>
+                        <div class="stat-list">
+                            ${desiredStats.attribute.map(stat => {
+                                const isMatch = loc.matchedAttributes.includes(stat);
+                                return `<span class="stat-badge ${isMatch ? 'match' : ''}">${stat}</span>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+
+                if (loc.secondaryStat) {
+                    statsHTML += `
+                        <div class="stat-match-row">
+                            <span class="stat-category">Secondary Stat:</span>
+                            <div class="stat-list">
+                                <span class="stat-badge ${loc.hasSecondaryStat ? 'match' : ''}">${loc.secondaryStat}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (loc.skillStat) {
+                    statsHTML += `
+                        <div class="stat-match-row">
+                            <span class="stat-category">Skill Stat:</span>
+                            <div class="stat-list">
+                                <span class="stat-badge ${loc.hasSkillStat ? 'match' : ''}">${loc.skillStat}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                statsHTML += '</div>';
+
+                card.innerHTML = `
+                    <div class="location-header">
+                        <span class="location-name">${index === 0 ? '🏆 ' : ''}${loc.name}</span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span class="match-score">${loc.statMatchCount}/${loc.totalPossibleStats} статов</span>
+                            <span class="match-score">${loc.totalFarmablePercentage}% всего оружия</span>
+                        </div>
+                    </div>
+                    ${statsHTML}
+                `;
+
+                resultsContainer.appendChild(card);
+            });
+
+            // Display alternative stats section if exists
+            if (alternativeStats && alternativeStats.bestLocation) {
+                const altSection = document.createElement('div');
+                altSection.style.marginTop = '32px';
+                altSection.innerHTML = `
+                    <h3 style="color: var(--color-accent); margin-bottom: 16px; font-size: 1.25rem;">
+                        🔄 Альтернативная комбинация для оставшегося оружия
+                    </h3>
+                    <div class="section-subtitle" style="margin-bottom: 1rem;">
+                        <strong>Оставшееся оружие:</strong> ${alternativeStats.weapons.join(', ')}<br>
+                        <strong>Рекомендуемые статы:</strong> ${[...alternativeStats.attribute, alternativeStats.secondary || alternativeStats.skill].filter(Boolean).join(', ')}
+                    </div>
+                `;
+                
+                const loc = alternativeStats.bestLocation;
+                const altCard = document.createElement('div');
+                altCard.className = 'location-card';
+                altCard.style.borderLeftColor = 'var(--color-warning)';
+                
+                let statsHTML = '';
+                
+                if (loc.locationMatchingWeapons && loc.locationMatchingWeapons.length > 0) {
+                    statsHTML += `
+                        <div style="margin-bottom: 12px; padding: 8px; background: rgba(245, 158, 11, 0.1); border-radius: 6px;">
+                            <strong style="color: var(--color-warning);">Подходящее оружие в этой локации:</strong>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 8px;">
+                                ${loc.locationMatchingWeapons.map(weapon => {
+                                    const iconPath = `weapons/${weapon.replace(/[:\s]/g, '_')}.png`;
+                                    const isSelected = state.ownedWeapons.has(weapon);
+                                    const hasEssence = state.essenceReady.has(weapon);
+                                    const classes = hasEssence ? 'has-essence' : (isSelected ? 'selected' : '');
+                                    return `
+                                        <div class="result-weapon-item ${classes}" data-weapon="${weapon}">
+                                            <img src="${iconPath}" alt="${weapon}" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
+                                            <span style="font-size: 0.75rem; text-align: center; line-height: 1.2;">${weapon}</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                statsHTML += '<div class="stat-matches">';
+                
+                statsHTML += `
+                    <div class="stat-match-row">
+                        <span class="stat-category">Attribute Stats:</span>
+                        <div class="stat-list">
+                            ${alternativeStats.attribute.map(stat => {
+                                const isMatch = loc.matchedAttributes.includes(stat);
+                                return `<span class="stat-badge ${isMatch ? 'match' : ''}">${stat}</span>`;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+
+                if (loc.secondaryStat) {
+                    statsHTML += `
+                        <div class="stat-match-row">
+                            <span class="stat-category">Secondary Stat:</span>
+                            <div class="stat-list">
+                                <span class="stat-badge ${loc.hasSecondaryStat ? 'match' : ''}">${loc.secondaryStat}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (loc.skillStat) {
+                    statsHTML += `
+                        <div class="stat-match-row">
+                            <span class="stat-category">Skill Stat:</span>
+                            <div class="stat-list">
+                                <span class="stat-badge ${loc.hasSkillStat ? 'match' : ''}">${loc.skillStat}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                statsHTML += '</div>';
+
+                altCard.innerHTML = `
+                    <div class="location-header">
+                        <span class="location-name">🎯 ${loc.name}</span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span class="match-score" style="background: var(--color-warning);">${loc.weaponMatchPercentage}% оружия (${loc.matchedWeaponsCount}/${loc.totalWeaponsCount})</span>
+                            <span class="match-score" style="background: var(--color-warning);">${loc.statMatchCount}/${loc.totalPossibleStats} статов</span>
+                        </div>
+                    </div>
+                    ${statsHTML}
+                `;
+                
+                altSection.appendChild(altCard);
+                resultsContainer.appendChild(altSection);
+            }
+
+            resultsSection.classList.add('visible');
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Attach click handlers to result weapon items
+            document.querySelectorAll('.result-weapon-item').forEach(item => {
+                const weaponName = item.dataset.weapon;
+                
+                item.onclick = () => {
+                    if (state.essenceReady.has(weaponName)) {
+                        return;
+                    }
+                    
+                    if (state.ownedWeapons.has(weaponName)) {
+                        state.ownedWeapons.delete(weaponName);
+                        item.classList.remove('selected');
+                    } else {
+                        state.ownedWeapons.add(weaponName);
+                        item.classList.add('selected');
+                    }
+                    
+                    // Update main weapon list
+                    updateMainWeaponList();
+                    autoSelectStats();
+                };
+                
+                item.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    
+                    if (state.essenceReady.has(weaponName)) {
+                        state.essenceReady.delete(weaponName);
+                        state.ownedWeapons.delete(weaponName);
+                        item.classList.remove('has-essence');
+                        item.classList.remove('selected');
+                    } else {
+                        state.essenceReady.add(weaponName);
+                        state.ownedWeapons.add(weaponName);
+                        item.classList.add('has-essence');
+                        item.classList.remove('selected');
+                    }
+                    
+                    // Update main weapon list
+                    updateMainWeaponList();
+                    autoSelectStats();
+                };
+            });
+        }
+
+        function updateMainWeaponList() {
+            document.querySelectorAll('.weapon-item').forEach(item => {
+                const weaponName = item.querySelector('.weapon-name').textContent;
+                
+                if (state.essenceReady.has(weaponName)) {
+                    item.classList.add('has-essence');
+                    item.classList.remove('selected');
+                } else if (state.ownedWeapons.has(weaponName)) {
+                    item.classList.add('selected');
+                    item.classList.remove('has-essence');
+                } else {
+                    item.classList.remove('selected', 'has-essence');
+                }
+            });
+        }
+
+        function showNoResults(message) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            resultsContainer.innerHTML = `
+                <div class="no-results">
+                    <h3>${message}</h3>
+                </div>
+            `;
+
+            resultsSection.classList.add('visible');
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function resetAll() {
+            state.ownedWeapons.clear();
+            state.essenceReady.clear();
+            state.selectedAttributeStats.clear();
+            state.selectedSecondaryStat = null;
+            state.selectedSkillStat = null;
+
+            document.querySelectorAll('.weapon-item').forEach(el => {
+                el.classList.remove('selected', 'has-essence');
+                el.style.boxShadow = '';
+            });
+
+            document.querySelectorAll('.stat-chip').forEach(el => {
+                el.classList.remove('selected', 'auto-selected', 'disabled');
+            });
+
+            updateSecondaryStatsAvailability(true);
+            updateSkillStatsAvailability(true);
+
+            document.getElementById('resultsSection').classList.remove('visible');
+            updateCalculateButton();
+        }
+
+        function toggleRarity(rarity) {
+            const weaponList = document.querySelector(`.weapon-list[data-rarity="${rarity}"]`);
+            const toggle = event.currentTarget.querySelector('.rarity-toggle');
+            
+            weaponList.classList.toggle('collapsed');
+            toggle.classList.toggle('collapsed');
+        }
+
+        initWeapons();
+        initStats();
+        updateCalculateButton();
+    </script>
+</body>
+</html>
+
