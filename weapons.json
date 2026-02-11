@@ -146,7 +146,7 @@
   "Wedge": {
     "rarity": 6,
     "attribute_stats": "Main Attribute Boost",
-    "secondary_stats": "Physical DMG Boost",
+    "secondary_stats": "Critical Rate Boost",
     "skill_stats": "Infliction"
   },
   "White Night Nova": {
