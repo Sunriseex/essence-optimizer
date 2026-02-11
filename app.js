@@ -382,7 +382,7 @@
                 return;
             }
 
-            calculateBestLocation();
+            calculateBestLocation({ scrollToResults: false });
         }
 
         function autoSelectStats() {
@@ -653,15 +653,16 @@
             };
         }
 
-        function calculateBestLocation() {
+        function calculateBestLocation(options = {}) {
+            const scrollToResults = options.scrollToResults !== false;
             const weaponsNeedingEssence = Array.from(state.ownedWeapons)
                 .filter(weapon => !state.essenceReady.has(weapon));
 
             if (weaponsNeedingEssence.length === 0) {
                 if (state.ownedWeapons.size === 0) {
-                    showNoResults('❌ Выберите хотя бы одно оружие для фарма (левый клик)');
+                    showNoResults('❌ Выберите хотя бы одно оружие для фарма (левый клик)', { scrollToResults });
                 } else {
-                    showNoResults('✅ У всех выбранных оружий уже есть эссенция! Если хотите фармить новое, отметьте его левым кликом (синим), а не правым (зелёным).');
+                    showNoResults('✅ У всех выбранных оружий уже есть эссенция! Если хотите фармить новое, отметьте его левым кликом (синим), а не правым (зелёным).', { scrollToResults });
                 }
                 return;
             }
@@ -676,7 +677,7 @@
                 ((desiredStats.secondary && !desiredStats.skill) || (desiredStats.skill && !desiredStats.secondary));
 
             if (!hasValidSelection) {
-                showNoResults('❌ Выберите ровно 3 Attribute Stats и 1 стат из Secondary или Skill.');
+                showNoResults('❌ Выберите ровно 3 Attribute Stats и 1 стат из Secondary или Skill.', { scrollToResults });
                 return;
             }
 
@@ -691,7 +692,7 @@
             });
 
             if (candidateWeapons.length === 0) {
-                showNoResults('Ни одно выбранное оружие не подходит под выбранный Secondary/Skill стат. Измените выбор.');
+                showNoResults('Ни одно выбранное оружие не подходит под выбранный Secondary/Skill стат. Измените выбор.', { scrollToResults });
                 return;
             }
 
@@ -792,7 +793,7 @@
                 const bestLocation = locationScores[0];
 
                 if (!bestLocation || bestLocation.matchedWeaponsCount === 0) {
-                    showNoResults(`Не найдено локаций, где этот набор статов может дропнуть оружие: ${remainingCandidateWeapons.join(', ')}`);
+                    showNoResults(`Не найдено локаций, где этот набор статов может дропнуть оружие: ${remainingCandidateWeapons.join(', ')}`, { scrollToResults });
                     return;
                 }
 
@@ -815,10 +816,11 @@
                 weapon => !candidateWeapons.includes(weapon)
             );
 
-            displayResults(farmPlan, skippedWeapons);
+            displayResults(farmPlan, skippedWeapons, { scrollToResults });
         }
 
-        function displayResults(farmPlan, skippedWeapons = []) {
+        function displayResults(farmPlan, skippedWeapons = [], options = {}) {
+            const scrollToResults = options.scrollToResults !== false;
             const resultsSection = document.getElementById('resultsSection');
             const resultsContainer = document.getElementById('resultsContainer');
 
@@ -931,7 +933,9 @@
             });
 
             resultsSection.classList.add('visible');
-            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            if (scrollToResults) {
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
 
             document.querySelectorAll('.result-weapon-item').forEach(item => {
                 const weaponName = item.dataset.weapon;
@@ -990,7 +994,8 @@
             });
         }
 
-        function showNoResults(message) {
+        function showNoResults(message, options = {}) {
+            const scrollToResults = options.scrollToResults !== false;
             const resultsSection = document.getElementById('resultsSection');
             const resultsContainer = document.getElementById('resultsContainer');
             
@@ -1001,7 +1006,9 @@
             `;
 
             resultsSection.classList.add('visible');
-            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            if (scrollToResults) {
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
         function resetAll() {
@@ -1074,7 +1081,7 @@
 
             try {
                 await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-                calculateBestLocation();
+                calculateBestLocation({ scrollToResults: true });
             } finally {
                 btn.classList.remove('loading');
                 btn.removeAttribute('aria-busy');
