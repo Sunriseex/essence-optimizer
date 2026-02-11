@@ -1010,12 +1010,9 @@
 
         function updateCalculateButton() {
             const btn = document.getElementById('calculateBtn');
-            const hasRequiredStats = 
-                state.selectedAttributeStats.size === 3 &&
-                ((state.selectedSecondaryStat !== null && state.selectedSkillStat === null) ||
-                 (state.selectedSkillStat !== null && state.selectedSecondaryStat === null));
-            
-            btn.disabled = !hasRequiredStats;
+            const weaponsNeedingEssence = Array.from(state.ownedWeapons)
+                .filter(weapon => !state.essenceReady.has(weapon));
+            btn.disabled = weaponsNeedingEssence.length === 0;
         }
 
         function getRecommendedStatsForWeapons(targetWeapons) {
@@ -1161,56 +1158,88 @@
                 return;
             }
 
-            const desiredStats = {
-                attribute: Array.from(state.selectedAttributeStats),
-                secondary: state.selectedSecondaryStat,
-                skill: state.selectedSkillStat
-            };
+            const desiredStats = getRecommendedStatsForWeapons(weaponsNeedingEssence);
+            const activeStatType = desiredStats.secondary ? 'secondary' : 'skill';
+            const activeStatValue = desiredStats.secondary || desiredStats.skill;
 
-            const hasValidManualSelection = desiredStats.attribute.length === 3 &&
-                ((desiredStats.secondary && !desiredStats.skill) || (desiredStats.skill && !desiredStats.secondary));
-
-            if (!hasValidManualSelection) {
-                showNoResults('❌ Выберите ровно 3 Attribute Stats и 1 стат из Secondary или Skill.');
-                return;
-            }
-
-            const eligibleWeapons = weaponsNeedingEssence.filter(weapon => {
-                const weaponData = weaponsData[weapon];
-                const attributeMatch = desiredStats.attribute.includes(weaponData.attribute_stats);
-                const secondaryMatch = desiredStats.secondary ? weaponData.secondary_stats === desiredStats.secondary : true;
-                const skillMatch = desiredStats.skill ? weaponData.skill_stats === desiredStats.skill : true;
-                return attributeMatch && secondaryMatch && skillMatch;
-            });
-
-            if (eligibleWeapons.length === 0) {
-                showNoResults('Ни одно выбранное оружие не подходит под выбранные статы. Измените набор статов.');
-                return;
-            }
-
-            const skippedWeapons = weaponsNeedingEssence.filter(weapon => !eligibleWeapons.includes(weapon));
-            const farmPlan = [];
-            let remainingWeapons = [...eligibleWeapons];
-
-            while (remainingWeapons.length > 0) {
-                const { scores } = getLocationScores(remainingWeapons, desiredStats, { strictDesiredStats: true });
-                const bestLocation = scores[0];
-
-                if (!bestLocation || bestLocation.matchedWeaponsCount === 0) {
-                    showNoResults(`Не удалось найти локацию для оружия: ${remainingWeapons.join(', ')}`);
-                    return;
-                }
-
-                const coveredWeapons = bestLocation.locationMatchingWeapons;
-
-                farmPlan.push({
-                    weapons: coveredWeapons,
-                    desiredStats,
-                    bestLocation
+            const locationScores = Object.entries(locationsData).map(([name, location]) => {
+                const attributeEligibleWeapons = weaponsNeedingEssence.filter(weapon => {
+                    const weaponData = weaponsData[weapon];
+                    return location.attribute_stats.includes(weaponData.attribute_stats);
                 });
 
-                remainingWeapons = remainingWeapons.filter(weapon => !coveredWeapons.includes(weapon));
+                const locationMatchingWeapons = attributeEligibleWeapons.filter(weapon => {
+                    const weaponData = weaponsData[weapon];
+                    const hasSecondary = location.secondary_stats.includes(weaponData.secondary_stats);
+                    const hasSkill = location.skill_stats.includes(weaponData.skill_stats);
+                    return hasSecondary && hasSkill;
+                });
+
+                const matchedAttributes = desiredStats.attribute.filter(stat =>
+                    location.attribute_stats.includes(stat)
+                );
+
+                const hasSecondaryStat = desiredStats.secondary ?
+                    location.secondary_stats.includes(desiredStats.secondary) : false;
+                const hasSkillStat = desiredStats.skill ?
+                    location.skill_stats.includes(desiredStats.skill) : false;
+                const hasActiveStat = activeStatType === 'secondary' ? hasSecondaryStat : hasSkillStat;
+
+                const matchedWeaponsCount = locationMatchingWeapons.length;
+                const totalWeaponsCount = weaponsNeedingEssence.length;
+                const weaponMatchPercentage = totalWeaponsCount > 0
+                    ? Math.round((matchedWeaponsCount / totalWeaponsCount) * 100)
+                    : 0;
+
+                const statMatchCount = matchedAttributes.length + (hasActiveStat ? 1 : 0);
+                const totalPossibleStats = desiredStats.attribute.length + 1;
+
+                return {
+                    name,
+                    matchedAttributes,
+                    hasSecondaryStat,
+                    hasSkillStat,
+                    secondaryStat: desiredStats.secondary,
+                    skillStat: desiredStats.skill,
+                    statMatchCount,
+                    totalPossibleStats,
+                    weaponMatchPercentage,
+                    matchedWeaponsCount,
+                    totalWeaponsCount,
+                    locationMatchingWeapons,
+                    attributeEligibleWeapons,
+                    activeStatType,
+                    activeStatValue,
+                    location
+                };
+            });
+
+            locationScores.sort((a, b) => {
+                if (b.matchedWeaponsCount !== a.matchedWeaponsCount) {
+                    return b.matchedWeaponsCount - a.matchedWeaponsCount;
+                }
+                if (b.statMatchCount !== a.statMatchCount) {
+                    return b.statMatchCount - a.statMatchCount;
+                }
+                return b.weaponMatchPercentage - a.weaponMatchPercentage;
+            });
+
+            const bestLocation = locationScores[0];
+
+            if (!bestLocation || bestLocation.matchedWeaponsCount === 0) {
+                showNoResults('Не найдено локаций, где можно фармить выбранное оружие по его статам.');
+                return;
             }
+
+            const skippedWeapons = weaponsNeedingEssence.filter(
+                weapon => !bestLocation.locationMatchingWeapons.includes(weapon)
+            );
+
+            const farmPlan = [{
+                weapons: bestLocation.locationMatchingWeapons,
+                desiredStats,
+                bestLocation
+            }];
 
             displayResults(farmPlan, skippedWeapons);
         }
