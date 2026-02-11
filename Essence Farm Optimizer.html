@@ -1192,74 +1192,88 @@
                 return;
             }
 
-            const locationScores = Object.entries(locationsData).map(([name, location]) => {
-                const locationMatchingWeapons = candidateWeapons.filter(weapon => {
-                    const weaponData = weaponsData[weapon];
-                    const hasAttribute = location.attribute_stats.includes(weaponData.attribute_stats);
-                    const hasSecondary = location.secondary_stats.includes(weaponData.secondary_stats);
-                    const hasSkill = location.skill_stats.includes(weaponData.skill_stats);
-                    return hasAttribute && hasSecondary && hasSkill;
+            const getLocationScoresForWeapons = (weaponPool) => {
+                const locationScores = Object.entries(locationsData).map(([name, location]) => {
+                    const locationMatchingWeapons = weaponPool.filter(weapon => {
+                        const weaponData = weaponsData[weapon];
+                        const hasAttribute = location.attribute_stats.includes(weaponData.attribute_stats);
+                        const hasSecondary = location.secondary_stats.includes(weaponData.secondary_stats);
+                        const hasSkill = location.skill_stats.includes(weaponData.skill_stats);
+                        return hasAttribute && hasSecondary && hasSkill;
+                    });
+
+                    const matchedAttributes = desiredStats.attribute.filter(stat =>
+                        location.attribute_stats.includes(stat)
+                    );
+
+                    const hasSecondaryStat = desiredStats.secondary ?
+                        location.secondary_stats.includes(desiredStats.secondary) : false;
+                    const hasSkillStat = desiredStats.skill ?
+                        location.skill_stats.includes(desiredStats.skill) : false;
+                    const hasActiveStat = desiredStats.secondary ? hasSecondaryStat : hasSkillStat;
+
+                    const matchedWeaponsCount = locationMatchingWeapons.length;
+                    const totalWeaponsCount = weaponPool.length;
+                    const weaponMatchPercentage = totalWeaponsCount > 0
+                        ? Math.round((matchedWeaponsCount / totalWeaponsCount) * 100)
+                        : 0;
+
+                    return {
+                        name,
+                        matchedAttributes,
+                        hasSecondaryStat,
+                        hasSkillStat,
+                        secondaryStat: desiredStats.secondary,
+                        skillStat: desiredStats.skill,
+                        statMatchCount: matchedAttributes.length + (hasActiveStat ? 1 : 0),
+                        totalPossibleStats: desiredStats.attribute.length + 1,
+                        weaponMatchPercentage,
+                        matchedWeaponsCount,
+                        totalWeaponsCount,
+                        locationMatchingWeapons,
+                        location
+                    };
                 });
 
-                const matchedAttributes = desiredStats.attribute.filter(stat =>
-                    location.attribute_stats.includes(stat)
+                locationScores.sort((a, b) => {
+                    if (b.matchedWeaponsCount !== a.matchedWeaponsCount) {
+                        return b.matchedWeaponsCount - a.matchedWeaponsCount;
+                    }
+                    if (b.statMatchCount !== a.statMatchCount) {
+                        return b.statMatchCount - a.statMatchCount;
+                    }
+                    return b.weaponMatchPercentage - a.weaponMatchPercentage;
+                });
+
+                return locationScores;
+            };
+
+            const farmPlan = [];
+            let remainingCandidateWeapons = [...candidateWeapons];
+
+            while (remainingCandidateWeapons.length > 0) {
+                const locationScores = getLocationScoresForWeapons(remainingCandidateWeapons);
+                const bestLocation = locationScores[0];
+
+                if (!bestLocation || bestLocation.matchedWeaponsCount === 0) {
+                    showNoResults(`Не найдено локаций, где этот набор статов может дропнуть оружие: ${remainingCandidateWeapons.join(', ')}`);
+                    return;
+                }
+
+                farmPlan.push({
+                    weapons: bestLocation.locationMatchingWeapons,
+                    desiredStats,
+                    bestLocation
+                });
+
+                remainingCandidateWeapons = remainingCandidateWeapons.filter(
+                    weapon => !bestLocation.locationMatchingWeapons.includes(weapon)
                 );
-
-                const hasSecondaryStat = desiredStats.secondary ?
-                    location.secondary_stats.includes(desiredStats.secondary) : false;
-                const hasSkillStat = desiredStats.skill ?
-                    location.skill_stats.includes(desiredStats.skill) : false;
-
-                const hasActiveStat = desiredStats.secondary ? hasSecondaryStat : hasSkillStat;
-                const matchedWeaponsCount = locationMatchingWeapons.length;
-                const totalWeaponsCount = candidateWeapons.length;
-                const weaponMatchPercentage = totalWeaponsCount > 0
-                    ? Math.round((matchedWeaponsCount / totalWeaponsCount) * 100)
-                    : 0;
-
-                return {
-                    name,
-                    matchedAttributes,
-                    hasSecondaryStat,
-                    hasSkillStat,
-                    secondaryStat: desiredStats.secondary,
-                    skillStat: desiredStats.skill,
-                    statMatchCount: matchedAttributes.length + (hasActiveStat ? 1 : 0),
-                    totalPossibleStats: desiredStats.attribute.length + 1,
-                    weaponMatchPercentage,
-                    matchedWeaponsCount,
-                    totalWeaponsCount,
-                    locationMatchingWeapons,
-                    location
-                };
-            });
-
-            locationScores.sort((a, b) => {
-                if (b.matchedWeaponsCount !== a.matchedWeaponsCount) {
-                    return b.matchedWeaponsCount - a.matchedWeaponsCount;
-                }
-                if (b.statMatchCount !== a.statMatchCount) {
-                    return b.statMatchCount - a.statMatchCount;
-                }
-                return b.weaponMatchPercentage - a.weaponMatchPercentage;
-            });
-
-            const bestLocation = locationScores[0];
-
-            if (!bestLocation || bestLocation.matchedWeaponsCount === 0) {
-                showNoResults('Не найдено локаций, где этот набор статов может дропнуть выбранное оружие.');
-                return;
             }
 
             const skippedWeapons = weaponsNeedingEssence.filter(
-                weapon => !bestLocation.locationMatchingWeapons.includes(weapon)
+                weapon => !candidateWeapons.includes(weapon)
             );
-
-            const farmPlan = [{
-                weapons: bestLocation.locationMatchingWeapons,
-                desiredStats,
-                bestLocation
-            }];
 
             displayResults(farmPlan, skippedWeapons);
         }
