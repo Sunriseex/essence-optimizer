@@ -316,6 +316,9 @@
 
         function highlightMatchingWeapons() {
             const weaponItems = document.querySelectorAll('.weapon-item');
+            const hasAnySelectedStat = state.selectedAttributeStats.size > 0 ||
+                state.selectedSecondaryStat !== null ||
+                state.selectedSkillStat !== null;
             
             weaponItems.forEach(item => {
                 const weaponName = item.querySelector('.weapon-name').textContent;
@@ -323,6 +326,11 @@
                 
                 // Remove previous highlight
                 item.style.boxShadow = '';
+
+                // If no stats are selected, keep list unhighlighted.
+                if (!hasAnySelectedStat) {
+                    return;
+                }
                 
                 // Don't highlight if weapon is already selected
                 if (state.ownedWeapons.has(weaponName)) {
@@ -402,17 +410,22 @@
                 return;
             }
 
+            document.querySelectorAll('.weapon-item').forEach(item => {
+                item.style.boxShadow = '';
+            });
+
             if (state.ownedWeapons.size === 0 && state.essenceReady.size === 0) {
                 return;
             }
 
-            state.ownedWeapons.clear();
-            state.essenceReady.clear();
-
-            document.querySelectorAll('.weapon-item').forEach(item => {
-                item.classList.remove('selected', 'has-essence');
-                item.style.boxShadow = '';
+            // Keep "essence ready" weapons (green) and clear only farm targets (blue).
+            Array.from(state.ownedWeapons).forEach(weapon => {
+                if (!state.essenceReady.has(weapon)) {
+                    state.ownedWeapons.delete(weapon);
+                }
             });
+
+            updateMainWeaponList();
 
             document.getElementById('resultsSection').classList.remove('visible');
             updateCalculateButton();
