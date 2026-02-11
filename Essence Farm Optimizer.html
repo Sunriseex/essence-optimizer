@@ -882,6 +882,21 @@
             });
         }
 
+        function refreshResultsAfterSelectionChange() {
+            const resultsSection = document.getElementById('resultsSection');
+            if (!resultsSection.classList.contains('visible')) {
+                return;
+            }
+
+            const btn = document.getElementById('calculateBtn');
+            if (btn.disabled) {
+                resultsSection.classList.remove('visible');
+                return;
+            }
+
+            calculateBestLocation();
+        }
+
         function autoSelectStats() {
             const weaponsNeedingEssence = Array.from(state.ownedWeapons)
                 .filter(weapon => !state.essenceReady.has(weapon));
@@ -1006,6 +1021,7 @@
             }
 
             updateCalculateButton();
+            refreshResultsAfterSelectionChange();
         }
 
         function updateCalculateButton() {
