@@ -570,18 +570,38 @@
         let locationsData = {};
 
         async function loadDataFromJson() {
-            const [weaponsResponse, locationsResponse] = await Promise.all([
-                fetch('weapons.json'),
-                fetch('locations.json')
-            ]);
+            const isFileProtocol = window.location.protocol === 'file:';
+            let weaponsResponse;
+            let locationsResponse;
 
-            if (!weaponsResponse.ok || !locationsResponse.ok) {
-                throw new Error('Не удалось загрузить weapons.json или locations.json');
+            try {
+                [weaponsResponse, locationsResponse] = await Promise.all([
+                    fetch('weapons.json'),
+                    fetch('locations.json')
+                ]);
+            } catch (error) {
+                if (isFileProtocol) {
+                    throw new Error('Браузер блокирует загрузку JSON при открытии HTML напрямую. Запустите локальный сервер: python -m http.server 4173 и откройте http://127.0.0.1:4173/Essence%20Farm%20Optimizer.html');
+                }
+                throw new Error('Ошибка сети при загрузке weapons.json и locations.json');
             }
 
-            weaponsData = await weaponsResponse.json();
-            locationsData = await locationsResponse.json();
+            if (!weaponsResponse.ok || !locationsResponse.ok) {
+                throw new Error(`Не удалось загрузить JSON (weapons: ${weaponsResponse.status}, locations: ${locationsResponse.status})`);
+            }
+
+            try {
+                weaponsData = await weaponsResponse.json();
+                locationsData = await locationsResponse.json();
+            } catch (error) {
+                throw new Error('Некорректный формат JSON в weapons.json или locations.json');
+            }
+
             weapons = Object.keys(weaponsData).sort();
+
+            if (weapons.length === 0 || Object.keys(locationsData).length === 0) {
+                throw new Error('JSON загружен, но список оружия или локаций пуст. Проверьте содержимое weapons.json и locations.json');
+            }
         }
 
         const state = {
@@ -991,7 +1011,7 @@
         function updateCalculateButton() {
             const btn = document.getElementById('calculateBtn');
             const hasRequiredStats = 
-                state.selectedAttributeStats.size > 0 &&
+                state.selectedAttributeStats.size === 3 &&
                 ((state.selectedSecondaryStat !== null && state.selectedSkillStat === null) ||
                  (state.selectedSkillStat !== null && state.selectedSecondaryStat === null));
             
@@ -1141,56 +1161,47 @@
                 return;
             }
 
-            const farmPlan = [];
-            let remainingWeapons = [...weaponsNeedingEssence];
-
-            const manualDesiredStats = {
+            const desiredStats = {
                 attribute: Array.from(state.selectedAttributeStats),
                 secondary: state.selectedSecondaryStat,
                 skill: state.selectedSkillStat
             };
 
-            let useManualStatsForCurrentGroup = manualDesiredStats.attribute.length > 0 &&
-                ((manualDesiredStats.secondary && !manualDesiredStats.skill) ||
-                 (manualDesiredStats.skill && !manualDesiredStats.secondary));
+            const hasValidManualSelection = desiredStats.attribute.length === 3 &&
+                ((desiredStats.secondary && !desiredStats.skill) || (desiredStats.skill && !desiredStats.secondary));
+
+            if (!hasValidManualSelection) {
+                showNoResults('❌ Выберите ровно 3 Attribute Stats и 1 стат из Secondary или Skill.');
+                return;
+            }
+
+            const eligibleWeapons = weaponsNeedingEssence.filter(weapon => {
+                const weaponData = weaponsData[weapon];
+                const attributeMatch = desiredStats.attribute.includes(weaponData.attribute_stats);
+                const secondaryMatch = desiredStats.secondary ? weaponData.secondary_stats === desiredStats.secondary : true;
+                const skillMatch = desiredStats.skill ? weaponData.skill_stats === desiredStats.skill : true;
+                return attributeMatch && secondaryMatch && skillMatch;
+            });
+
+            if (eligibleWeapons.length === 0) {
+                showNoResults('Ни одно выбранное оружие не подходит под выбранные статы. Измените набор статов.');
+                return;
+            }
+
+            const skippedWeapons = weaponsNeedingEssence.filter(weapon => !eligibleWeapons.includes(weapon));
+            const farmPlan = [];
+            let remainingWeapons = [...eligibleWeapons];
 
             while (remainingWeapons.length > 0) {
-                const desiredStats = useManualStatsForCurrentGroup
-                    ? manualDesiredStats
-                    : getRecommendedStatsForWeapons(remainingWeapons);
-                const { scores } = getLocationScores(
-                    remainingWeapons,
-                    desiredStats,
-                    { strictDesiredStats: useManualStatsForCurrentGroup }
-                );
+                const { scores } = getLocationScores(remainingWeapons, desiredStats, { strictDesiredStats: true });
                 const bestLocation = scores[0];
-                                if (!bestLocation || bestLocation.totalWeaponsCount === 0) {
-                    showNoResults('Ни одно оружие не подходит под выбранные статы. Измените выбор статов или нажмите «Сбросить всё».');
+
+                if (!bestLocation || bestLocation.matchedWeaponsCount === 0) {
+                    showNoResults(`Не удалось найти локацию для оружия: ${remainingWeapons.join(', ')}`);
                     return;
                 }
 
-                let coveredWeapons = bestLocation.locationMatchingWeapons;
-
-                if (coveredWeapons.length === 0) {
-                    const fallbackWeapon = remainingWeapons[0];
-                    const fallbackData = weaponsData[fallbackWeapon];
-                    const fallbackStats = {
-                        attribute: [fallbackData.attribute_stats],
-                        secondary: fallbackData.secondary_stats,
-                        skill: null
-                    };
-
-                    const { scores: fallbackScores } = getLocationScores([fallbackWeapon], fallbackStats);
-                    farmPlan.push({
-                        weapons: [fallbackWeapon],
-                        desiredStats: fallbackStats,
-                        bestLocation: fallbackScores[0]
-                    });
-
-                    useManualStatsForCurrentGroup = false;
-                    remainingWeapons = remainingWeapons.filter(weapon => weapon !== fallbackWeapon);
-                    continue;
-                }
+                const coveredWeapons = bestLocation.locationMatchingWeapons;
 
                 farmPlan.push({
                     weapons: coveredWeapons,
@@ -1198,18 +1209,25 @@
                     bestLocation
                 });
 
-                useManualStatsForCurrentGroup = false;
                 remainingWeapons = remainingWeapons.filter(weapon => !coveredWeapons.includes(weapon));
             }
 
-            displayResults(farmPlan);
+            displayResults(farmPlan, skippedWeapons);
         }
 
-        function displayResults(farmPlan) {
+        function displayResults(farmPlan, skippedWeapons = []) {
             const resultsSection = document.getElementById('resultsSection');
             const resultsContainer = document.getElementById('resultsContainer');
 
             resultsContainer.innerHTML = '';
+
+            if (skippedWeapons.length > 0) {
+                const skippedInfo = document.createElement('div');
+                skippedInfo.className = 'section-subtitle';
+                skippedInfo.style.marginBottom = '1rem';
+                skippedInfo.innerHTML = `<strong>Не вошли в текущий набор статов:</strong> ${skippedWeapons.join(', ')}`;
+                resultsContainer.appendChild(skippedInfo);
+            }
 
             farmPlan.forEach((step, index) => {
                 const section = document.createElement('div');
@@ -1419,6 +1437,7 @@
                 updateCalculateButton();
             } catch (error) {
                 showNoResults(`❌ ${error.message}`);
+                document.getElementById('calculateBtn').disabled = true;
                 console.error(error);
             }
         }
