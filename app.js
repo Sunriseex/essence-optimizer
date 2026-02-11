@@ -254,9 +254,11 @@
         }
 
         function toggleAttributeStat(stat, element) {
-            if (element.classList.contains('disabled') || element.classList.contains('auto-selected')) {
+            if (element.classList.contains('disabled')) {
                 return;
             }
+
+            element.classList.remove('auto-selected');
 
             if (state.selectedAttributeStats.has(stat)) {
                 state.selectedAttributeStats.delete(stat);
@@ -267,50 +269,49 @@
             }
             highlightMatchingWeapons();
             updateCalculateButton();
+            resetWeaponSelectionsAfterStatClear();
         }
 
         function toggleSecondaryStat(stat, element) {
-            if (state.selectedSkillStat !== null || element.classList.contains('disabled') || element.classList.contains('auto-selected')) {
+            if (element.classList.contains('disabled')) {
                 return;
             }
 
             const container = document.getElementById('secondaryStats');
             container.querySelectorAll('.stat-chip').forEach(chip => {
-                chip.classList.remove('selected');
+                chip.classList.remove('selected', 'auto-selected');
             });
             
             if (state.selectedSecondaryStat === stat) {
                 state.selectedSecondaryStat = null;
-                updateSkillStatsAvailability(true);
             } else {
                 state.selectedSecondaryStat = stat;
                 element.classList.add('selected');
-                updateSkillStatsAvailability(false);
             }
             highlightMatchingWeapons();
             updateCalculateButton();
+            resetWeaponSelectionsAfterStatClear();
         }
 
         function toggleSkillStat(stat, element) {
-            if (state.selectedSecondaryStat !== null || element.classList.contains('disabled') || element.classList.contains('auto-selected')) {
+            if (element.classList.contains('disabled')) {
                 return;
             }
 
             const container = document.getElementById('skillStats');
             container.querySelectorAll('.stat-chip').forEach(chip => {
-                chip.classList.remove('selected');
+                chip.classList.remove('selected', 'auto-selected');
             });
             
             if (state.selectedSkillStat === stat) {
                 state.selectedSkillStat = null;
-                updateSecondaryStatsAvailability(true);
             } else {
                 state.selectedSkillStat = stat;
                 element.classList.add('selected');
-                updateSecondaryStatsAvailability(false);
             }
             highlightMatchingWeapons();
             updateCalculateButton();
+            resetWeaponSelectionsAfterStatClear();
         }
 
         function highlightMatchingWeapons() {
@@ -376,6 +377,14 @@
                 return;
             }
 
+            const weaponsNeedingEssence = Array.from(state.ownedWeapons)
+                .filter(weapon => !state.essenceReady.has(weapon));
+
+            if (state.ownedWeapons.size > 0 && weaponsNeedingEssence.length === 0) {
+                showNoResults('✅ Всё выбранное оружие уже отфармлено.', { scrollToResults: false });
+                return;
+            }
+
             const btn = document.getElementById('calculateBtn');
             if (btn.disabled) {
                 resultsSection.classList.remove('visible');
@@ -383,6 +392,30 @@
             }
 
             calculateBestLocation({ scrollToResults: false });
+        }
+
+        function resetWeaponSelectionsAfterStatClear() {
+            const noSelectedStats = state.selectedAttributeStats.size === 0 &&
+                state.selectedSecondaryStat === null &&
+                state.selectedSkillStat === null;
+            if (!noSelectedStats) {
+                return;
+            }
+
+            if (state.ownedWeapons.size === 0 && state.essenceReady.size === 0) {
+                return;
+            }
+
+            state.ownedWeapons.clear();
+            state.essenceReady.clear();
+
+            document.querySelectorAll('.weapon-item').forEach(item => {
+                item.classList.remove('selected', 'has-essence');
+                item.style.boxShadow = '';
+            });
+
+            document.getElementById('resultsSection').classList.remove('visible');
+            updateCalculateButton();
         }
 
         function autoSelectStats() {
@@ -404,6 +437,7 @@
 
             if (weaponsNeedingEssence.length === 0) {
                 updateCalculateButton();
+                refreshResultsAfterSelectionChange();
                 return;
             }
 
@@ -449,7 +483,6 @@
                     .find(el => el.textContent === onlySecondaryStat);
                 if (chip) {
                     chip.classList.add('auto-selected');
-                    updateSkillStatsAvailability(false);
                 }
             } else if (uniqueSkillStats.size === 1 && uniqueSecondaryStats.size > 1) {
                 const onlySkillStat = Array.from(uniqueSkillStats)[0];
@@ -458,7 +491,6 @@
                     .find(el => el.textContent === onlySkillStat);
                 if (chip) {
                     chip.classList.add('auto-selected');
-                    updateSecondaryStatsAvailability(false);
                 }
             } else if (uniqueSecondaryStats.size === 1 && uniqueSkillStats.size === 1) {
                 const onlySecondaryStat = Array.from(uniqueSecondaryStats)[0];
@@ -467,7 +499,6 @@
                     .find(el => el.textContent === onlySecondaryStat);
                 if (chip) {
                     chip.classList.add('auto-selected');
-                    updateSkillStatsAvailability(false);
                 }
             } else {
                 const sortedSecondaryStats = Object.entries(statCounts.secondary)
@@ -485,7 +516,6 @@
                         .find(el => el.textContent === topSkillStat[0]);
                     if (chip) {
                         chip.classList.add('auto-selected');
-                        updateSecondaryStatsAvailability(false);
                     }
                 } else if (topSecondaryCount > topSkillCount) {
                     const topSecondaryStat = sortedSecondaryStats[0];
@@ -494,7 +524,6 @@
                         .find(el => el.textContent === topSecondaryStat[0]);
                     if (chip) {
                         chip.classList.add('auto-selected');
-                        updateSkillStatsAvailability(false);
                     }
                 } else {
                     const topSecondaryStat = sortedSecondaryStats[0];
@@ -503,7 +532,6 @@
                         .find(el => el.textContent === topSecondaryStat[0]);
                     if (chip) {
                         chip.classList.add('auto-selected');
-                        updateSkillStatsAvailability(false);
                     }
                 }
             }
@@ -516,9 +544,8 @@
             const btn = document.getElementById('calculateBtn');
             const weaponsNeedingEssence = Array.from(state.ownedWeapons)
                 .filter(weapon => !state.essenceReady.has(weapon));
-            const hasValidSelection = state.selectedAttributeStats.size === 3 &&
-                ((state.selectedSecondaryStat !== null && state.selectedSkillStat === null) ||
-                 (state.selectedSkillStat !== null && state.selectedSecondaryStat === null));
+            const hasStatPairSelection = state.selectedSecondaryStat !== null || state.selectedSkillStat !== null;
+            const hasValidSelection = state.selectedAttributeStats.size === 3 && hasStatPairSelection;
 
             btn.disabled = weaponsNeedingEssence.length === 0 || !hasValidSelection;
         }
@@ -574,7 +601,6 @@
         }
 
         function getLocationScores(targetWeapons, desiredStats, options = {}) {
-            const activeStatType = desiredStats.secondary ? 'secondary' : 'skill';
             const matchingWeapons = targetWeapons.filter(weapon => {
                 const weaponData = weaponsData[weapon];
                 const attributeMatch = desiredStats.attribute.includes(weaponData.attribute_stats);
@@ -607,23 +633,22 @@
                 const hasSkillStat = desiredStats.skill ?
                     location.skill_stats.includes(desiredStats.skill) : false;
 
-                const hasActiveStat = activeStatType === 'secondary' ? hasSecondaryStat : hasSkillStat;
+                const extraStatMatchCount = (hasSecondaryStat ? 1 : 0) + (hasSkillStat ? 1 : 0);
+                const selectedExtraStatsCount = (desiredStats.secondary ? 1 : 0) + (desiredStats.skill ? 1 : 0);
                 const matchedWeaponsCount = locationMatchingWeapons.length;
                 const totalWeaponsCount = poolWeapons.length;
                 const weaponMatchPercentage = totalWeaponsCount > 0
                     ? Math.round((matchedWeaponsCount / totalWeaponsCount) * 100)
                     : 0;
 
-                const statMatchCount = matchedAttributes.length + (hasActiveStat ? 1 : 0);
-                const totalPossibleStats = desiredStats.attribute.length + 1;
+                const statMatchCount = matchedAttributes.length + extraStatMatchCount;
+                const totalPossibleStats = desiredStats.attribute.length + selectedExtraStatsCount;
 
                 return {
                     name,
                     matchedAttributes,
-                    hasActiveStat,
                     hasSecondaryStat,
                     hasSkillStat,
-                    activeStatType,
                     secondaryStat: desiredStats.secondary,
                     skillStat: desiredStats.skill,
                     weaponMatchPercentage,
@@ -641,10 +666,7 @@
                     return b.weaponMatchPercentage - a.weaponMatchPercentage;
                 }
 
-                const aStatMatches = a.matchedAttributes.length + (a.hasActiveStat ? 1 : 0);
-                const bStatMatches = b.matchedAttributes.length + (b.hasActiveStat ? 1 : 0);
-
-                return bStatMatches - aStatMatches;
+                return b.statMatchCount - a.statMatchCount;
             });
 
             return {
@@ -662,7 +684,7 @@
                 if (state.ownedWeapons.size === 0) {
                     showNoResults('❌ Выберите хотя бы одно оружие для фарма (левый клик)', { scrollToResults });
                 } else {
-                    showNoResults('✅ У всех выбранных оружий уже есть эссенция! Если хотите фармить новое, отметьте его левым кликом (синим), а не правым (зелёным).', { scrollToResults });
+                    showNoResults('✅ Всё выбранное оружие уже отфармлено.', { scrollToResults });
                 }
                 return;
             }
@@ -674,25 +696,24 @@
             };
 
             const hasValidSelection = desiredStats.attribute.length === 3 &&
-                ((desiredStats.secondary && !desiredStats.skill) || (desiredStats.skill && !desiredStats.secondary));
+                (desiredStats.secondary || desiredStats.skill);
 
             if (!hasValidSelection) {
-                showNoResults('❌ Выберите ровно 3 Attribute Stats и 1 стат из Secondary или Skill.', { scrollToResults });
+                showNoResults('❌ Выберите ровно 3 Attribute Stats и хотя бы 1 стат из Secondary или Skill.', { scrollToResults });
                 return;
             }
 
             const candidateWeapons = weaponsNeedingEssence.filter(weapon => {
                 const weaponData = weaponsData[weapon];
-
-                if (desiredStats.secondary) {
-                    return weaponData.secondary_stats === desiredStats.secondary;
-                }
-
-                return weaponData.skill_stats === desiredStats.skill;
+                const secondaryMatch = !desiredStats.secondary ||
+                    weaponData.secondary_stats === desiredStats.secondary;
+                const skillMatch = !desiredStats.skill ||
+                    weaponData.skill_stats === desiredStats.skill;
+                return secondaryMatch && skillMatch;
             });
 
             if (candidateWeapons.length === 0) {
-                showNoResults('Ни одно выбранное оружие не подходит под выбранный Secondary/Skill стат. Измените выбор.', { scrollToResults });
+                showNoResults('Ни одно выбранное оружие не подходит под выбранные Secondary/Skill статы. Измените выбор.', { scrollToResults });
                 return;
             }
 
@@ -714,7 +735,8 @@
                     locationScore.location.secondary_stats.includes(groupDesiredStats.secondary) : false;
                 const hasSkillStat = groupDesiredStats.skill ?
                     locationScore.location.skill_stats.includes(groupDesiredStats.skill) : false;
-                const hasActiveStat = groupDesiredStats.secondary ? hasSecondaryStat : hasSkillStat;
+                const extraStatMatchCount = (hasSecondaryStat ? 1 : 0) + (hasSkillStat ? 1 : 0);
+                const selectedExtraStatsCount = (groupDesiredStats.secondary ? 1 : 0) + (groupDesiredStats.skill ? 1 : 0);
 
                 return {
                     ...locationScore,
@@ -723,8 +745,8 @@
                     hasSkillStat,
                     secondaryStat: groupDesiredStats.secondary,
                     skillStat: groupDesiredStats.skill,
-                    statMatchCount: matchedAttributes.length + (hasActiveStat ? 1 : 0),
-                    totalPossibleStats: groupDesiredStats.attribute.length + 1
+                    statMatchCount: matchedAttributes.length + extraStatMatchCount,
+                    totalPossibleStats: groupDesiredStats.attribute.length + selectedExtraStatsCount
                 };
             };
 
@@ -746,7 +768,8 @@
                         location.secondary_stats.includes(groupDesiredStats.secondary) : false;
                     const hasSkillStat = groupDesiredStats.skill ?
                         location.skill_stats.includes(groupDesiredStats.skill) : false;
-                    const hasActiveStat = groupDesiredStats.secondary ? hasSecondaryStat : hasSkillStat;
+                    const extraStatMatchCount = (hasSecondaryStat ? 1 : 0) + (hasSkillStat ? 1 : 0);
+                    const selectedExtraStatsCount = (groupDesiredStats.secondary ? 1 : 0) + (groupDesiredStats.skill ? 1 : 0);
 
                     const matchedWeaponsCount = locationMatchingWeapons.length;
                     const totalWeaponsCount = weaponPool.length;
@@ -761,8 +784,8 @@
                         hasSkillStat,
                         secondaryStat: groupDesiredStats.secondary,
                         skillStat: groupDesiredStats.skill,
-                        statMatchCount: matchedAttributes.length + (hasActiveStat ? 1 : 0),
-                        totalPossibleStats: groupDesiredStats.attribute.length + 1,
+                        statMatchCount: matchedAttributes.length + extraStatMatchCount,
+                        totalPossibleStats: groupDesiredStats.attribute.length + selectedExtraStatsCount,
                         weaponMatchPercentage,
                         matchedWeaponsCount,
                         totalWeaponsCount,
@@ -838,7 +861,7 @@
                 const section = document.createElement('div');
                 section.className = 'result-group';
                 section.style.animationDelay = `${index * 90}ms`;
-                const groupStats = [...step.desiredStats.attribute, step.desiredStats.secondary || step.desiredStats.skill]
+                const groupStats = [...step.desiredStats.attribute, step.desiredStats.secondary, step.desiredStats.skill]
                     .filter(Boolean)
                     .join(', ');
 
