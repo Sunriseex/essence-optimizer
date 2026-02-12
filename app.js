@@ -1,39 +1,285 @@
         let weaponsData = {};
         let weapons = [];
         let locationsData = {};
+        let localizationData = {
+            weapons: {},
+            stats: {
+                attribute: {},
+                secondary: {},
+                skill: {}
+            }
+        };
+        let hasInitializedUI = false;
+        let currentLanguage = document.documentElement.lang === 'en' ? 'en' : 'ru';
+
+        const I18N = {
+            ru: {
+                pageTitle: 'Essence Farm Optimizer - Arknights Endfield',
+                appTitle: 'Essence Farm Optimizer',
+                languageLabel: 'Язык',
+                languageRu: 'Русский',
+                languageEn: 'English',
+                statsSectionTitle: '📊 Желаемые статы',
+                statsSectionSubtitle: 'Выберите статы для эссенции оружия, которое нужно фармить. Secondary и Skill можно выбрать одновременно вручную.',
+                weaponsSectionTitle: '🗡️ Оружие',
+                weaponsSectionSubtitle: '<strong>Левый клик:</strong> Отметить оружие, для которого нужно фармить эссенцию (синий)<br><strong>Правый клик:</strong> Отметить оружие с уже готовой эссенцией (зелёный, не будет учитываться в фарме)',
+                legendOwned: 'Есть на аккаунте',
+                legendEssence: 'Эссенция готова',
+                attributeGroupTitle: 'Attribute Stats <span class="stat-limit">(максимум 3 из 5)</span>',
+                secondaryGroupTitle: 'Secondary Stats <span class="stat-limit">(выбрать 1)</span>',
+                skillGroupTitle: 'Skill Stats <span class="stat-limit">(выбрать 1)</span>',
+                calculateBtn: 'Найти лучшую локацию',
+                resetBtn: 'Сбросить всё',
+                resultsSectionTitle: '🎯 Результаты',
+                rarityLabel: '{rarity}★ оружие',
+                tooltipAttribute: 'Attribute:',
+                tooltipSecondary: 'Secondary:',
+                tooltipSkill: 'Skill:',
+                noResultsSelectWeapon: '❌ Выберите хотя бы одно оружие для фарма (левый клик)',
+                noResultsAllFarmed: '✅ Всё выбранное оружие уже отфармлено.',
+                noResultsInvalidSelection: '❌ Выберите ровно 3 Attribute Stats и хотя бы 1 стат из Secondary или Skill.',
+                noResultsNoMatch: 'Ни одно выбранное оружие не подходит под выбранные Secondary/Skill статы. Измените выбор.',
+                noResultsNoLocation: 'Не найдено локаций, где этот набор статов может дропнуть оружие: {weapons}',
+                skippedWeapons: 'Не вошли в текущий набор статов:',
+                groupBest: '🏆 Группа 1',
+                groupN: '🎯 Группа {index}',
+                groupStats: 'статы: {stats}',
+                weaponsInGroup: 'Оружие в группе ({count}):',
+                attrStatsLabel: 'Attribute Stats:',
+                secondaryStatLabel: 'Secondary Stat:',
+                skillStatLabel: 'Skill Stat:',
+                locationSpotlightBest: 'Ключевая локация',
+                locationSpotlightGroup: 'Локация группы',
+                coverageTitle: 'Покрытие выбранных статов',
+                scoreWeapons: '{percentage}% оружия ({matched}/{total})',
+                scoreStats: '{matched}/{total} статов',
+                errorFileProtocol: 'Браузер блокирует загрузку JSON при открытии HTML напрямую.',
+                errorNetwork: 'Ошибка сети при загрузке weapons.json, locations.json и localization.json',
+                errorFetchStatus: 'Не удалось загрузить JSON (weapons: {weaponsStatus}, locations: {locationsStatus}, localization: {localizationStatus})',
+                errorInvalidJson: 'Некорректный формат JSON в weapons.json, locations.json или localization.json',
+                errorEmptyJson: 'JSON загружен, но список оружия или локаций пуст. Проверьте содержимое weapons.json, locations.json и localization.json'
+            },
+            en: {
+                pageTitle: 'Essence Farm Optimizer - Arknights Endfield',
+                appTitle: 'Essence Farm Optimizer',
+                languageLabel: 'Language',
+                languageRu: 'Russian',
+                languageEn: 'English',
+                statsSectionTitle: '📊 Desired Stats',
+                statsSectionSubtitle: 'Choose essence stats for weapons you want to farm. Secondary and Skill can be selected together manually.',
+                weaponsSectionTitle: '🗡️ Weapons',
+                weaponsSectionSubtitle: '<strong>Left click:</strong> Mark weapon for essence farming (blue)<br><strong>Right click:</strong> Mark weapon as already farmed (green, excluded from farming)',
+                legendOwned: 'Owned on account',
+                legendEssence: 'Essence ready',
+                attributeGroupTitle: 'Attribute Stats <span class="stat-limit">(max 3 of 5)</span>',
+                secondaryGroupTitle: 'Secondary Stats <span class="stat-limit">(choose 1)</span>',
+                skillGroupTitle: 'Skill Stats <span class="stat-limit">(choose 1)</span>',
+                calculateBtn: 'Find Best Location',
+                resetBtn: 'Reset All',
+                resultsSectionTitle: '🎯 Results',
+                rarityLabel: '{rarity}-Star Weapons',
+                tooltipAttribute: 'Attribute:',
+                tooltipSecondary: 'Secondary:',
+                tooltipSkill: 'Skill:',
+                noResultsSelectWeapon: '❌ Select at least one weapon to farm (left click)',
+                noResultsAllFarmed: '✅ All selected weapons are already farmed.',
+                noResultsInvalidSelection: '❌ Select exactly 3 Attribute Stats and at least 1 stat from Secondary or Skill.',
+                noResultsNoMatch: 'No selected weapon matches the chosen Secondary/Skill stats. Change your selection.',
+                noResultsNoLocation: 'No locations found where this stat set can drop weapons: {weapons}',
+                skippedWeapons: 'Not included in the current stat set:',
+                groupBest: '🏆 Group 1',
+                groupN: '🎯 Group {index}',
+                groupStats: 'stats: {stats}',
+                weaponsInGroup: 'Weapons in group ({count}):',
+                attrStatsLabel: 'Attribute Stats:',
+                secondaryStatLabel: 'Secondary Stat:',
+                skillStatLabel: 'Skill Stat:',
+                locationSpotlightBest: 'Key location',
+                locationSpotlightGroup: 'Group location',
+                coverageTitle: 'Selected stats coverage',
+                scoreWeapons: '{percentage}% weapons ({matched}/{total})',
+                scoreStats: '{matched}/{total} stats',
+                errorFileProtocol: 'Browser blocks JSON loading when opening HTML directly.',
+                errorNetwork: 'Network error while loading weapons.json, locations.json, and localization.json',
+                errorFetchStatus: 'Failed to load JSON (weapons: {weaponsStatus}, locations: {locationsStatus}, localization: {localizationStatus})',
+                errorInvalidJson: 'Invalid JSON format in weapons.json, locations.json, or localization.json',
+                errorEmptyJson: 'JSON loaded, but weapons or locations list is empty. Check weapons.json, locations.json, and localization.json'
+            }
+        };
+
+        try {
+            const savedLanguage = localStorage.getItem('essenceOptimizer.language');
+            if (savedLanguage === 'ru' || savedLanguage === 'en') {
+                currentLanguage = savedLanguage;
+            }
+        } catch (error) {
+            // Ignore storage errors and use default language.
+        }
+
+        function t(key, params = {}) {
+            const languagePack = I18N[currentLanguage] || I18N.ru;
+            const fallbackPack = I18N.ru;
+            let value = languagePack[key] ?? fallbackPack[key] ?? key;
+
+            return value.replace(/\{(\w+)\}/g, (_, token) => {
+                return Object.prototype.hasOwnProperty.call(params, token) ? String(params[token]) : `{${token}}`;
+            });
+        }
+
+        function getLocalizedWeaponName(weaponKey) {
+            const localized = localizationData.weapons?.[weaponKey]?.[currentLanguage];
+            const fallback = localizationData.weapons?.[weaponKey]?.en;
+            return localized || fallback || weaponKey;
+        }
+
+        function getLocalizedStatName(statCategory, statKey) {
+            const localized = localizationData.stats?.[statCategory]?.[statKey]?.[currentLanguage];
+            const fallback = localizationData.stats?.[statCategory]?.[statKey]?.en;
+            return localized || fallback || statKey;
+        }
+
+        function applyStaticTranslations() {
+            document.documentElement.lang = currentLanguage;
+            document.title = t('pageTitle');
+
+            const languageSelect = document.getElementById('languageSelect');
+            if (languageSelect) {
+                languageSelect.value = currentLanguage;
+                const ruOption = languageSelect.querySelector('option[value="ru"]');
+                const enOption = languageSelect.querySelector('option[value="en"]');
+                if (ruOption) ruOption.textContent = t('languageRu');
+                if (enOption) enOption.textContent = t('languageEn');
+            }
+
+            const byId = (id) => document.getElementById(id);
+            if (byId('appTitle')) byId('appTitle').textContent = t('appTitle');
+            if (byId('languageLabel')) byId('languageLabel').textContent = t('languageLabel');
+            if (byId('statsSectionTitle')) byId('statsSectionTitle').textContent = t('statsSectionTitle');
+            if (byId('statsSectionSubtitle')) byId('statsSectionSubtitle').textContent = t('statsSectionSubtitle');
+            if (byId('weaponsSectionTitle')) byId('weaponsSectionTitle').textContent = t('weaponsSectionTitle');
+            if (byId('weaponsSectionSubtitle')) byId('weaponsSectionSubtitle').innerHTML = t('weaponsSectionSubtitle');
+            if (byId('legendOwned')) byId('legendOwned').textContent = t('legendOwned');
+            if (byId('legendEssence')) byId('legendEssence').textContent = t('legendEssence');
+            if (byId('attributeGroupTitle')) byId('attributeGroupTitle').innerHTML = t('attributeGroupTitle');
+            if (byId('secondaryGroupTitle')) byId('secondaryGroupTitle').innerHTML = t('secondaryGroupTitle');
+            if (byId('skillGroupTitle')) byId('skillGroupTitle').innerHTML = t('skillGroupTitle');
+            if (byId('calculateBtn')) byId('calculateBtn').textContent = t('calculateBtn');
+            if (byId('resetBtn')) byId('resetBtn').textContent = t('resetBtn');
+            if (byId('resultsSectionTitle')) byId('resultsSectionTitle').textContent = t('resultsSectionTitle');
+        }
+
+        function setLanguage(language) {
+            if (language !== 'ru' && language !== 'en') {
+                return;
+            }
+
+            currentLanguage = language;
+            try {
+                localStorage.setItem('essenceOptimizer.language', language);
+            } catch (error) {
+                // Ignore storage errors.
+            }
+
+            applyStaticTranslations();
+
+            if (!hasInitializedUI) {
+                return;
+            }
+
+            initWeapons();
+            refreshLocalizedStatChipLabels();
+            updateMainWeaponList();
+            highlightMatchingWeapons();
+
+            const resultsSection = document.getElementById('resultsSection');
+            if (!resultsSection.classList.contains('visible')) {
+                return;
+            }
+
+            const btn = document.getElementById('calculateBtn');
+            if (btn.disabled) {
+                const weaponsNeedingEssence = Array.from(state.ownedWeapons)
+                    .filter(weapon => !state.essenceReady.has(weapon));
+
+                if (state.ownedWeapons.size === 0) {
+                    showNoResults(t('noResultsSelectWeapon'), { scrollToResults: false });
+                    return;
+                }
+
+                if (state.ownedWeapons.size > 0 && weaponsNeedingEssence.length === 0) {
+                    showNoResults(t('noResultsAllFarmed'), { scrollToResults: false });
+                    return;
+                }
+
+                showNoResults(t('noResultsInvalidSelection'), { scrollToResults: false });
+                return;
+            }
+
+            calculateBestLocation({ scrollToResults: false });
+        }
+
+        function refreshLocalizedStatChipLabels() {
+            const relabel = (containerId, statCategory) => {
+                const container = document.getElementById(containerId);
+                if (!container) {
+                    return;
+                }
+
+                Array.from(container.children).forEach(chip => {
+                    const statKey = chip.dataset.statKey;
+                    if (!statKey) {
+                        return;
+                    }
+                    chip.textContent = getLocalizedStatName(statCategory, statKey);
+                });
+            };
+
+            relabel('attributeStats', 'attribute');
+            relabel('secondaryStats', 'secondary');
+            relabel('skillStats', 'skill');
+        }
 
         async function loadDataFromJson() {
             const isFileProtocol = window.location.protocol === 'file:';
             let weaponsResponse;
             let locationsResponse;
+            let localizationResponse;
 
             try {
-                [weaponsResponse, locationsResponse] = await Promise.all([
+                [weaponsResponse, locationsResponse, localizationResponse] = await Promise.all([
                     fetch('weapons.json'),
-                    fetch('locations.json')
+                    fetch('locations.json'),
+                    fetch('localization.json')
                 ]);
             } catch (error) {
                 if (isFileProtocol) {
-                    throw new Error('Браузер блокирует загрузку JSON при открытии HTML напрямую. Запустите локальный сервер: python -m http.server 4173 и откройте http://127.0.0.1:4173/Essence%20Farm%20Optimizer.html');
+                    throw new Error(t('errorFileProtocol'));
                 }
-                throw new Error('Ошибка сети при загрузке weapons.json и locations.json');
+                throw new Error(t('errorNetwork'));
             }
 
-            if (!weaponsResponse.ok || !locationsResponse.ok) {
-                throw new Error(`Не удалось загрузить JSON (weapons: ${weaponsResponse.status}, locations: ${locationsResponse.status})`);
+            if (!weaponsResponse.ok || !locationsResponse.ok || !localizationResponse.ok) {
+                throw new Error(t('errorFetchStatus', {
+                    weaponsStatus: weaponsResponse.status,
+                    locationsStatus: locationsResponse.status,
+                    localizationStatus: localizationResponse.status
+                }));
             }
 
             try {
-                weaponsData = await weaponsResponse.json();
-                locationsData = await locationsResponse.json();
+                [weaponsData, locationsData, localizationData] = await Promise.all([
+                    weaponsResponse.json(),
+                    locationsResponse.json(),
+                    localizationResponse.json()
+                ]);
             } catch (error) {
-                throw new Error('Некорректный формат JSON в weapons.json или locations.json');
+                throw new Error(t('errorInvalidJson'));
             }
 
             weapons = Object.keys(weaponsData).sort();
 
             if (weapons.length === 0 || Object.keys(locationsData).length === 0) {
-                throw new Error('JSON загружен, но список оружия или локаций пуст. Проверьте содержимое weapons.json и locations.json');
+                throw new Error(t('errorEmptyJson'));
             }
         }
 
@@ -113,6 +359,7 @@
         function initWeapons() {
             const weaponList = document.getElementById('weaponList');
             const weaponsByRarity = {6: [], 5: [], 4: []};
+            weaponList.innerHTML = '';
 
             weapons.forEach(weapon => {
                 const rarity = weaponsData[weapon].rarity;
@@ -127,7 +374,7 @@
                 header.className = 'rarity-header';
                 header.innerHTML = `
                     <span class="rarity-stars">${'★'.repeat(rarity)}</span>
-                    <span class="rarity-label">${rarity}-Star Weapons</span>
+                    <span class="rarity-label">${t('rarityLabel', { rarity })}</span>
                     <span class="rarity-toggle ${rarity !== 6 ? 'collapsed' : ''}">▼</span>
                 `;
                 header.onclick = () => toggleRarity(rarity, header);
@@ -141,22 +388,24 @@
                     const weaponData = weaponsData[weapon];
                     const div = document.createElement('div');
                     div.className = 'weapon-item';
+                    div.dataset.weapon = weapon;
                     const iconPath = getWeaponIconPath(weapon);
+                    const localizedWeaponName = getLocalizedWeaponName(weapon);
                     div.innerHTML = `
-                        <img src="${iconPath}" alt="${weapon}" class="weapon-icon" onerror="this.style.display='none'">
-                        <span class="weapon-name">${weapon}</span>
+                        <img src="${iconPath}" alt="${localizedWeaponName}" class="weapon-icon" onerror="this.style.display='none'">
+                        <span class="weapon-name">${localizedWeaponName}</span>
                         <div class="weapon-tooltip">
                             <div class="tooltip-stat">
-                                <span class="tooltip-label">Attribute:</span>
-                                <span class="tooltip-value">${weaponData.attribute_stats}</span>
+                                <span class="tooltip-label">${t('tooltipAttribute')}</span>
+                                <span class="tooltip-value">${getLocalizedStatName('attribute', weaponData.attribute_stats)}</span>
                             </div>
                             <div class="tooltip-stat">
-                                <span class="tooltip-label">Secondary:</span>
-                                <span class="tooltip-value">${weaponData.secondary_stats}</span>
+                                <span class="tooltip-label">${t('tooltipSecondary')}</span>
+                                <span class="tooltip-value">${getLocalizedStatName('secondary', weaponData.secondary_stats)}</span>
                             </div>
                             <div class="tooltip-stat">
-                                <span class="tooltip-label">Skill:</span>
-                                <span class="tooltip-value">${weaponData.skill_stats}</span>
+                                <span class="tooltip-label">${t('tooltipSkill')}</span>
+                                <span class="tooltip-value">${getLocalizedStatName('skill', weaponData.skill_stats)}</span>
                             </div>
                         </div>
                     `;
@@ -174,6 +423,8 @@
             });
 
             requestAnimationFrame(refreshWeaponListHeights);
+            updateMainWeaponList();
+            highlightMatchingWeapons();
         }
 
         function toggleWeapon(weapon, element, interactionEvent) {
@@ -229,7 +480,8 @@
             Array.from(allStats.attribute).sort().forEach(stat => {
                 const chip = document.createElement('div');
                 chip.className = 'stat-chip';
-                chip.textContent = stat;
+                chip.dataset.statKey = stat;
+                chip.textContent = getLocalizedStatName('attribute', stat);
                 chip.onclick = () => toggleAttributeStat(stat, chip);
                 attributeContainer.appendChild(chip);
             });
@@ -238,7 +490,8 @@
             Array.from(allStats.secondary).sort().forEach(stat => {
                 const chip = document.createElement('div');
                 chip.className = 'stat-chip';
-                chip.textContent = stat;
+                chip.dataset.statKey = stat;
+                chip.textContent = getLocalizedStatName('secondary', stat);
                 chip.onclick = () => toggleSecondaryStat(stat, chip);
                 secondaryContainer.appendChild(chip);
             });
@@ -247,7 +500,8 @@
             Array.from(allStats.skill).sort().forEach(stat => {
                 const chip = document.createElement('div');
                 chip.className = 'stat-chip';
-                chip.textContent = stat;
+                chip.dataset.statKey = stat;
+                chip.textContent = getLocalizedStatName('skill', stat);
                 chip.onclick = () => toggleSkillStat(stat, chip);
                 skillContainer.appendChild(chip);
             });
@@ -321,7 +575,10 @@
                 state.selectedSkillStat !== null;
             
             weaponItems.forEach(item => {
-                const weaponName = item.querySelector('.weapon-name').textContent;
+                const weaponName = item.dataset.weapon;
+                if (!weaponName) {
+                    return;
+                }
                 const weaponData = weaponsData[weaponName];
                 
                 // Remove previous highlight
@@ -389,7 +646,7 @@
                 .filter(weapon => !state.essenceReady.has(weapon));
 
             if (state.ownedWeapons.size > 0 && weaponsNeedingEssence.length === 0) {
-                showNoResults('✅ Всё выбранное оружие уже отфармлено.', { scrollToResults: false });
+                showNoResults(t('noResultsAllFarmed'), { scrollToResults: false });
                 return;
             }
 
@@ -482,7 +739,7 @@
             selectedAttributes.forEach(stat => {
                 state.selectedAttributeStats.add(stat);
                 const chip = Array.from(document.getElementById('attributeStats').children)
-                    .find(el => el.textContent === stat);
+                    .find(el => el.dataset.statKey === stat);
                 if (chip) chip.classList.add('auto-selected');
             });
 
@@ -493,7 +750,7 @@
                 const onlySecondaryStat = Array.from(uniqueSecondaryStats)[0];
                 state.selectedSecondaryStat = onlySecondaryStat;
                 const chip = Array.from(document.getElementById('secondaryStats').children)
-                    .find(el => el.textContent === onlySecondaryStat);
+                    .find(el => el.dataset.statKey === onlySecondaryStat);
                 if (chip) {
                     chip.classList.add('auto-selected');
                 }
@@ -501,7 +758,7 @@
                 const onlySkillStat = Array.from(uniqueSkillStats)[0];
                 state.selectedSkillStat = onlySkillStat;
                 const chip = Array.from(document.getElementById('skillStats').children)
-                    .find(el => el.textContent === onlySkillStat);
+                    .find(el => el.dataset.statKey === onlySkillStat);
                 if (chip) {
                     chip.classList.add('auto-selected');
                 }
@@ -509,7 +766,7 @@
                 const onlySecondaryStat = Array.from(uniqueSecondaryStats)[0];
                 state.selectedSecondaryStat = onlySecondaryStat;
                 const chip = Array.from(document.getElementById('secondaryStats').children)
-                    .find(el => el.textContent === onlySecondaryStat);
+                    .find(el => el.dataset.statKey === onlySecondaryStat);
                 if (chip) {
                     chip.classList.add('auto-selected');
                 }
@@ -526,7 +783,7 @@
                     const topSkillStat = sortedSkillStats[0];
                     state.selectedSkillStat = topSkillStat[0];
                     const chip = Array.from(document.getElementById('skillStats').children)
-                        .find(el => el.textContent === topSkillStat[0]);
+                        .find(el => el.dataset.statKey === topSkillStat[0]);
                     if (chip) {
                         chip.classList.add('auto-selected');
                     }
@@ -534,7 +791,7 @@
                     const topSecondaryStat = sortedSecondaryStats[0];
                     state.selectedSecondaryStat = topSecondaryStat[0];
                     const chip = Array.from(document.getElementById('secondaryStats').children)
-                        .find(el => el.textContent === topSecondaryStat[0]);
+                        .find(el => el.dataset.statKey === topSecondaryStat[0]);
                     if (chip) {
                         chip.classList.add('auto-selected');
                     }
@@ -542,7 +799,7 @@
                     const topSecondaryStat = sortedSecondaryStats[0];
                     state.selectedSecondaryStat = topSecondaryStat[0];
                     const chip = Array.from(document.getElementById('secondaryStats').children)
-                        .find(el => el.textContent === topSecondaryStat[0]);
+                        .find(el => el.dataset.statKey === topSecondaryStat[0]);
                     if (chip) {
                         chip.classList.add('auto-selected');
                     }
@@ -695,9 +952,9 @@
 
             if (weaponsNeedingEssence.length === 0) {
                 if (state.ownedWeapons.size === 0) {
-                    showNoResults('❌ Выберите хотя бы одно оружие для фарма (левый клик)', { scrollToResults });
+                    showNoResults(t('noResultsSelectWeapon'), { scrollToResults });
                 } else {
-                    showNoResults('✅ Всё выбранное оружие уже отфармлено.', { scrollToResults });
+                    showNoResults(t('noResultsAllFarmed'), { scrollToResults });
                 }
                 return;
             }
@@ -712,7 +969,7 @@
                 (desiredStats.secondary || desiredStats.skill);
 
             if (!hasValidSelection) {
-                showNoResults('❌ Выберите ровно 3 Attribute Stats и хотя бы 1 стат из Secondary или Skill.', { scrollToResults });
+                showNoResults(t('noResultsInvalidSelection'), { scrollToResults });
                 return;
             }
 
@@ -726,7 +983,7 @@
             });
 
             if (candidateWeapons.length === 0) {
-                showNoResults('Ни одно выбранное оружие не подходит под выбранные Secondary/Skill статы. Измените выбор.', { scrollToResults });
+                showNoResults(t('noResultsNoMatch'), { scrollToResults });
                 return;
             }
 
@@ -829,7 +1086,7 @@
                 const bestLocation = locationScores[0];
 
                 if (!bestLocation || bestLocation.matchedWeaponsCount === 0) {
-                    showNoResults(`Не найдено локаций, где этот набор статов может дропнуть оружие: ${remainingCandidateWeapons.join(', ')}`, { scrollToResults });
+                    showNoResults(t('noResultsNoLocation', { weapons: remainingCandidateWeapons.map(getLocalizedWeaponName).join(', ') }), { scrollToResults });
                     return;
                 }
 
@@ -866,7 +1123,7 @@
                 const skippedInfo = document.createElement('div');
                 skippedInfo.className = 'section-subtitle';
                 skippedInfo.style.marginBottom = '1rem';
-                skippedInfo.innerHTML = `<strong>Не вошли в текущий набор статов:</strong> ${skippedWeapons.join(', ')}`;
+                skippedInfo.innerHTML = `<strong>${t('skippedWeapons')}</strong> ${skippedWeapons.map(getLocalizedWeaponName).join(', ')}`;
                 resultsContainer.appendChild(skippedInfo);
             }
 
@@ -874,13 +1131,15 @@
                 const section = document.createElement('div');
                 section.className = 'result-group';
                 section.style.animationDelay = `${index * 90}ms`;
-                const groupStats = [...step.desiredStats.attribute, step.desiredStats.secondary, step.desiredStats.skill]
-                    .filter(Boolean)
-                    .join(', ');
+                const localizedGroupStats = [
+                    ...step.desiredStats.attribute.map(stat => getLocalizedStatName('attribute', stat)),
+                    step.desiredStats.secondary ? getLocalizedStatName('secondary', step.desiredStats.secondary) : null,
+                    step.desiredStats.skill ? getLocalizedStatName('skill', step.desiredStats.skill) : null
+                ].filter(Boolean).join(', ');
 
                 section.innerHTML = `
                     <h3 style="margin: 18px 0 8px 0; color: ${index === 0 ? 'var(--color-success)' : 'var(--color-warning)'};">
-                        ${index === 0 ? '🏆 Группа 1' : '🎯 Группа ' + (index + 1)} (статы: ${groupStats})
+                        ${index === 0 ? t('groupBest') : t('groupN', { index: index + 1 })} (${t('groupStats', { stats: localizedGroupStats })})
                     </h3>
                 `;
 
@@ -893,17 +1152,18 @@
                 if (step.weapons && step.weapons.length > 0) {
                     statsHTML += `
                         <div style="margin-bottom: 12px; padding: 8px; background: rgba(56, 189, 248, 0.1); border-radius: 6px;">
-                            <strong style="color: var(--color-accent);">Оружие в группе (${step.weapons.length}):</strong>
+                            <strong style="color: var(--color-accent);">${t('weaponsInGroup', { count: step.weapons.length })}</strong>
                             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 8px;">
                                 ${step.weapons.map(weapon => {
                                     const iconPath = getWeaponIconPath(weapon);
+                                    const localizedWeaponName = getLocalizedWeaponName(weapon);
                                     const isSelected = state.ownedWeapons.has(weapon);
                                     const hasEssence = state.essenceReady.has(weapon);
                                     const classes = hasEssence ? 'has-essence' : (isSelected ? 'selected' : '');
                                     return `
                                         <div class="result-weapon-item ${classes}" data-weapon="${weapon}">
-                                            <img src="${iconPath}" alt="${weapon}" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
-                                            <span style="font-size: 0.75rem; text-align: center; line-height: 1.2;">${weapon}</span>
+                                            <img src="${iconPath}" alt="${localizedWeaponName}" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
+                                            <span style="font-size: 0.75rem; text-align: center; line-height: 1.2;">${localizedWeaponName}</span>
                                         </div>
                                     `;
                                 }).join('')}
@@ -915,11 +1175,11 @@
                 statsHTML += '<div class="stat-matches">';
                 statsHTML += `
                     <div class="stat-match-row">
-                        <span class="stat-category">Attribute Stats:</span>
+                        <span class="stat-category">${t('attrStatsLabel')}</span>
                         <div class="stat-list">
                             ${step.desiredStats.attribute.map(stat => {
                                 const isMatch = loc.matchedAttributes.includes(stat);
-                                return `<span class="stat-badge ${isMatch ? 'match' : ''}">${stat}</span>`;
+                                return `<span class="stat-badge ${isMatch ? 'match' : ''}">${getLocalizedStatName('attribute', stat)}</span>`;
                             }).join('')}
                         </div>
                     </div>
@@ -928,9 +1188,9 @@
                 if (loc.secondaryStat) {
                     statsHTML += `
                         <div class="stat-match-row">
-                            <span class="stat-category">Secondary Stat:</span>
+                            <span class="stat-category">${t('secondaryStatLabel')}</span>
                             <div class="stat-list">
-                                <span class="stat-badge ${loc.hasSecondaryStat ? 'match' : ''}">${loc.secondaryStat}</span>
+                                <span class="stat-badge ${loc.hasSecondaryStat ? 'match' : ''}">${getLocalizedStatName('secondary', loc.secondaryStat)}</span>
                             </div>
                         </div>
                     `;
@@ -939,9 +1199,9 @@
                 if (loc.skillStat) {
                     statsHTML += `
                         <div class="stat-match-row">
-                            <span class="stat-category">Skill Stat:</span>
+                            <span class="stat-category">${t('skillStatLabel')}</span>
                             <div class="stat-list">
-                                <span class="stat-badge ${loc.hasSkillStat ? 'match' : ''}">${loc.skillStat}</span>
+                                <span class="stat-badge ${loc.hasSkillStat ? 'match' : ''}">${getLocalizedStatName('skill', loc.skillStat)}</span>
                             </div>
                         </div>
                     `;
@@ -951,14 +1211,14 @@
 
                 card.innerHTML = `
                     <div class="location-spotlight ${index === 0 ? 'best' : ''}">
-                        <span class="location-spotlight-label">${index === 0 ? 'Ключевая локация' : 'Локация группы'}</span>
+                        <span class="location-spotlight-label">${index === 0 ? t('locationSpotlightBest') : t('locationSpotlightGroup')}</span>
                         <span class="location-spotlight-name">${loc.name}</span>
                     </div>
                     <div class="location-header">
-                        <span class="location-name">Покрытие выбранных статов</span>
+                        <span class="location-name">${t('coverageTitle')}</span>
                         <div style="display: flex; gap: 8px; align-items: center;">
-                            <span class="match-score">${loc.weaponMatchPercentage}% оружия (${loc.matchedWeaponsCount}/${loc.totalWeaponsCount})</span>
-                            <span class="match-score">${loc.statMatchCount}/${loc.totalPossibleStats} статов</span>
+                            <span class="match-score">${t('scoreWeapons', { percentage: loc.weaponMatchPercentage, matched: loc.matchedWeaponsCount, total: loc.totalWeaponsCount })}</span>
+                            <span class="match-score">${t('scoreStats', { matched: loc.statMatchCount, total: loc.totalPossibleStats })}</span>
                         </div>
                     </div>
                     ${statsHTML}
@@ -1016,7 +1276,10 @@
 
         function updateMainWeaponList() {
             document.querySelectorAll('.weapon-item').forEach(item => {
-                const weaponName = item.querySelector('.weapon-name').textContent;
+                const weaponName = item.dataset.weapon;
+                if (!weaponName) {
+                    return;
+                }
                 
                 if (state.essenceReady.has(weaponName)) {
                     item.classList.add('has-essence');
@@ -1127,10 +1390,12 @@
         async function initApp() {
             try {
                 await loadDataFromJson();
+                setLanguage(currentLanguage);
                 initWeapons();
                 initStats();
                 updateCalculateButton();
                 window.addEventListener('resize', refreshWeaponListHeights);
+                hasInitializedUI = true;
             } catch (error) {
                 showNoResults(`❌ ${error.message}`);
                 document.getElementById('calculateBtn').disabled = true;

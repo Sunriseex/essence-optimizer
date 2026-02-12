@@ -1,147 +1,147 @@
 {
-  "The Hub": {
+  "Origin Lodespring": {
     "attribute_stats": [
       "Agility Boost",
-      "Strength Boost",
-      "Will Boost",
       "Intellect Boost",
-      "Main Attribute Boost"
+      "Main Attribute Boost",
+      "Strength Boost",
+      "Will Boost"
     ],
     "secondary_stats": [
-      "ATK Boost",
-      "Heat DMG Boost",
-      "Electric DMG Boost",
-      "Cryo DMG Boost",
-      "Nature DMG Boost",
       "Arts Intensity Boost",
-      "Ultimate Gain Efficiency Boost",
-      "Arts DMG Boost"
+      "Critical Rate Boost",
+      "Cryo DMG Boost",
+      "Heat DMG Boost",
+      "HP Boost",
+      "Nature DMG Boost",
+      "Physical DMG Boost",
+      "Treatment Efficiency Boost"
     ],
     "skill_stats": [
       "Assault",
-      "Suppression",
-      "Pursuit",
-      "Crusher",
+      "Brutality",
       "Combative",
       "Detonate",
-      "Flow",
-      "Efficacy"
+      "Efficacy",
+      "Infliction",
+      "Suppression",
+      "Twilight"
     ]
   },
   "Originium Science Park": {
     "attribute_stats": [
       "Agility Boost",
-      "Strength Boost",
-      "Will Boost",
       "Intellect Boost",
-      "Main Attribute Boost"
+      "Main Attribute Boost",
+      "Strength Boost",
+      "Will Boost"
     ],
     "secondary_stats": [
+      "Arts DMG Boost",
       "ATK Boost",
-      "Physical DMG Boost",
+      "Critical Rate Boost",
+      "Cryo DMG Boost",
       "Electric DMG Boost",
-      "Cryo DMG Boost",
       "Nature DMG Boost",
-      "Critical Rate Boost",
-      "Ultimate Gain Efficiency Boost",
-      "Arts DMG Boost"
-    ],
-    "skill_stats": [
-      "Suppression",
-      "Pursuit",
-      "Inspiring",
-      "Combative",
-      "Infliction",
-      "Medicant",
-      "Fracture",
-      "Efficacy"
-    ]
-  },
-  "Origin Lodespring": {
-    "attribute_stats": [
-      "Agility Boost",
-      "Strength Boost",
-      "Will Boost",
-      "Intellect Boost",
-      "Main Attribute Boost"
-    ],
-    "secondary_stats": [
-      "HP Boost",
       "Physical DMG Boost",
-      "Heat DMG Boost",
-      "Cryo DMG Boost",
-      "Nature DMG Boost",
-      "Critical Rate Boost",
-      "Arts Intensity Boost",
-      "Treatment Efficiency Boost"
+      "Ultimate Gain Efficiency Boost"
     ],
     "skill_stats": [
-      "Assault",
-      "Suppression",
       "Combative",
-      "Brutality",
+      "Efficacy",
+      "Fracture",
       "Infliction",
-      "Detonate",
-      "Twilight",
-      "Efficacy"
+      "Inspiring",
+      "Medicant",
+      "Pursuit",
+      "Suppression"
     ]
   },
   "Power Plateau": {
     "attribute_stats": [
       "Agility Boost",
-      "Strength Boost",
-      "Will Boost",
       "Intellect Boost",
-      "Main Attribute Boost"
+      "Main Attribute Boost",
+      "Strength Boost",
+      "Will Boost"
     ],
     "secondary_stats": [
-      "ATK Boost",
-      "HP Boost",
-      "Physical DMG Boost",
-      "Heat DMG Boost",
-      "Nature DMG Boost",
-      "Critical Rate Boost",
       "Arts Intensity Boost",
+      "ATK Boost",
+      "Critical Rate Boost",
+      "Heat DMG Boost",
+      "HP Boost",
+      "Nature DMG Boost",
+      "Physical DMG Boost",
       "Treatment Efficiency Boost"
     ],
     "skill_stats": [
-      "Pursuit",
-      "Crusher",
-      "Inspiring",
       "Brutality",
-      "Infliction",
-      "Medicant",
+      "Crusher",
+      "Flow",
       "Fracture",
-      "Flow"
+      "Infliction",
+      "Inspiring",
+      "Medicant",
+      "Pursuit"
+    ]
+  },
+  "The Hub": {
+    "attribute_stats": [
+      "Agility Boost",
+      "Intellect Boost",
+      "Main Attribute Boost",
+      "Strength Boost",
+      "Will Boost"
+    ],
+    "secondary_stats": [
+      "Arts DMG Boost",
+      "Arts Intensity Boost",
+      "ATK Boost",
+      "Cryo DMG Boost",
+      "Electric DMG Boost",
+      "Heat DMG Boost",
+      "Nature DMG Boost",
+      "Ultimate Gain Efficiency Boost"
+    ],
+    "skill_stats": [
+      "Assault",
+      "Combative",
+      "Crusher",
+      "Detonate",
+      "Efficacy",
+      "Flow",
+      "Pursuit",
+      "Suppression"
     ]
   },
   "Wuling City": {
     "attribute_stats": [
       "Agility Boost",
-      "Strength Boost",
-      "Will Boost",
       "Intellect Boost",
-      "Main Attribute Boost"
+      "Main Attribute Boost",
+      "Strength Boost",
+      "Will Boost"
     ],
     "secondary_stats": [
-      "ATK Boost",
-      "HP Boost",
-      "Electric DMG Boost",
-      "Cryo DMG Boost",
-      "Critical Rate Boost",
-      "Ultimate Gain Efficiency Boost",
       "Arts DMG Boost",
-      "Treatment Efficiency Boost"
+      "ATK Boost",
+      "Critical Rate Boost",
+      "Cryo DMG Boost",
+      "Electric DMG Boost",
+      "HP Boost",
+      "Treatment Efficiency Boost",
+      "Ultimate Gain Efficiency Boost"
     ],
     "skill_stats": [
       "Assault",
-      "Crusher",
       "Brutality",
-      "Medicant",
-      "Fracture",
+      "Crusher",
       "Detonate",
-      "Twilight",
-      "Flow"
+      "Flow",
+      "Fracture",
+      "Medicant",
+      "Twilight"
     ]
   }
 }

@@ -1,9 +1,33 @@
 {
+  "Aggeloslayer": {
+    "rarity": 4,
+    "attribute_stats": "Will Boost",
+    "secondary_stats": "Arts DMG Boost",
+    "skill_stats": "Suppression"
+  },
+  "Ancient Canal": {
+    "rarity": 5,
+    "attribute_stats": "Strength Boost",
+    "secondary_stats": "Arts Intensity Boost",
+    "skill_stats": "Brutality"
+  },
   "Artzy Tyrannical": {
     "rarity": 6,
     "attribute_stats": "Intellect Boost",
     "secondary_stats": "Critical Rate Boost",
     "skill_stats": "Fracture"
+  },
+  "Aspirant": {
+    "rarity": 5,
+    "attribute_stats": "Agility Boost",
+    "secondary_stats": "Physical DMG Boost",
+    "skill_stats": "Twilight"
+  },
+  "Chimeric Justice": {
+    "rarity": 5,
+    "attribute_stats": "Strength Boost",
+    "secondary_stats": "Ultimate Gain Efficiency Boost",
+    "skill_stats": "Brutality"
   },
   "Chivalric Virtues": {
     "rarity": 6,
@@ -16,6 +40,18 @@
     "attribute_stats": "Main Attribute Boost",
     "secondary_stats": "Arts DMG Boost",
     "skill_stats": "Infliction"
+  },
+  "Cohesive Traction": {
+    "rarity": 5,
+    "attribute_stats": "Will Boost",
+    "secondary_stats": "Electric DMG Boost",
+    "skill_stats": "Suppression"
+  },
+  "Contingent Measure": {
+    "rarity": 4,
+    "attribute_stats": "Agility Boost",
+    "secondary_stats": "Physical DMG Boost",
+    "skill_stats": "Suppression"
   },
   "Delivery Guaranteed": {
     "rarity": 6,
@@ -47,6 +83,24 @@
     "secondary_stats": "ATK Boost",
     "skill_stats": "Suppression"
   },
+  "Finchaser 3.0": {
+    "rarity": 5,
+    "attribute_stats": "Strength Boost",
+    "secondary_stats": "Cryo DMG Boost",
+    "skill_stats": "Suppression"
+  },
+  "Finishing Call": {
+    "rarity": 5,
+    "attribute_stats": "Strength Boost",
+    "secondary_stats": "HP Boost",
+    "skill_stats": "Medicant"
+  },
+  "Fluorescent Roc": {
+    "rarity": 4,
+    "attribute_stats": "Will Boost",
+    "secondary_stats": "ATK Boost",
+    "skill_stats": "Suppression"
+  },
   "Forgeborn Scathe": {
     "rarity": 6,
     "attribute_stats": "Intellect Boost",
@@ -59,11 +113,41 @@
     "secondary_stats": "HP Boost",
     "skill_stats": "Efficacy"
   },
+  "Fortmaker": {
+    "rarity": 5,
+    "attribute_stats": "Intellect Boost",
+    "secondary_stats": "Ultimate Gain Efficiency Boost",
+    "skill_stats": "Inspiring"
+  },
+  "Freedom to Proselytize": {
+    "rarity": 5,
+    "attribute_stats": "Will Boost",
+    "secondary_stats": "Treatment Efficiency Boost",
+    "skill_stats": "Medicant"
+  },
   "Grand Vision": {
     "rarity": 6,
     "attribute_stats": "Agility Boost",
     "secondary_stats": "ATK Boost",
     "skill_stats": "Infliction"
+  },
+  "Howling Guard": {
+    "rarity": 4,
+    "attribute_stats": "Intellect Boost",
+    "secondary_stats": "ATK Boost",
+    "skill_stats": "Suppression"
+  },
+  "Hypernova Auto": {
+    "rarity": 4,
+    "attribute_stats": "Intellect Boost",
+    "secondary_stats": "Arts DMG Boost",
+    "skill_stats": "Inspiring"
+  },
+  "Industry 0.1": {
+    "rarity": 4,
+    "attribute_stats": "Strength Boost",
+    "secondary_stats": "ATK Boost",
+    "skill_stats": "Suppression"
   },
   "JET": {
     "rarity": 6,
@@ -76,6 +160,18 @@
     "attribute_stats": "Strength Boost",
     "secondary_stats": "ATK Boost",
     "skill_stats": "Detonate"
+  },
+  "Long Road": {
+    "rarity": 4,
+    "attribute_stats": "Strength Boost",
+    "secondary_stats": "Arts DMG Boost",
+    "skill_stats": "Pursuit"
+  },
+  "Monaihe": {
+    "rarity": 5,
+    "attribute_stats": "Will Boost",
+    "secondary_stats": "Ultimate Gain Efficiency Boost",
+    "skill_stats": "Inspiring"
   },
   "Mountain Bearer": {
     "rarity": 6,
@@ -94,120 +190,6 @@
     "attribute_stats": "Will Boost",
     "secondary_stats": "ATK Boost",
     "skill_stats": "Flow"
-  },
-  "Oblivion": {
-    "rarity": 6,
-    "attribute_stats": "Intellect Boost",
-    "secondary_stats": "Arts DMG Boost",
-    "skill_stats": "Twilight"
-  },
-  "Opus: Etch Figure": {
-    "rarity": 6,
-    "attribute_stats": "Will Boost",
-    "secondary_stats": "Nature DMG Boost",
-    "skill_stats": "Suppression"
-  },
-  "Rapid Ascent": {
-    "rarity": 6,
-    "attribute_stats": "Main Attribute Boost",
-    "secondary_stats": "Critical Rate Boost",
-    "skill_stats": "Twilight"
-  },
-  "Sundered Prince": {
-    "rarity": 6,
-    "attribute_stats": "Strength Boost",
-    "secondary_stats": "Critical Rate Boost",
-    "skill_stats": "Crusher"
-  },
-  "Thermite Cutter": {
-    "rarity": 6,
-    "attribute_stats": "Will Boost",
-    "secondary_stats": "ATK Boost",
-    "skill_stats": "Flow"
-  },
-  "Thunderberge": {
-    "rarity": 6,
-    "attribute_stats": "Strength Boost",
-    "secondary_stats": "HP Boost",
-    "skill_stats": "Medicant"
-  },
-  "Umbral Torch": {
-    "rarity": 6,
-    "attribute_stats": "Intellect Boost",
-    "secondary_stats": "Heat DMG Boost",
-    "skill_stats": "Infliction"
-  },
-  "Valiant": {
-    "rarity": 6,
-    "attribute_stats": "Agility Boost",
-    "secondary_stats": "Physical DMG Boost",
-    "skill_stats": "Combative"
-  },
-  "Wedge": {
-    "rarity": 6,
-    "attribute_stats": "Main Attribute Boost",
-    "secondary_stats": "Critical Rate Boost",
-    "skill_stats": "Infliction"
-  },
-  "White Night Nova": {
-    "rarity": 6,
-    "attribute_stats": "Main Attribute Boost",
-    "secondary_stats": "Arts Intensity Boost",
-    "skill_stats": "Infliction"
-  },
-  "Ancient Canal": {
-    "rarity": 5,
-    "attribute_stats": "Strength Boost",
-    "secondary_stats": "Arts Intensity Boost",
-    "skill_stats": "Brutality"
-  },
-  "Aspirant": {
-    "rarity": 5,
-    "attribute_stats": "Agility Boost",
-    "secondary_stats": "Physical DMG Boost",
-    "skill_stats": "Twilight"
-  },
-  "Chimeric Justice": {
-    "rarity": 5,
-    "attribute_stats": "Strength Boost",
-    "secondary_stats": "Ultimate Gain Efficiency Boost",
-    "skill_stats": "Brutality"
-  },
-  "Cohesive Traction": {
-    "rarity": 5,
-    "attribute_stats": "Will Boost",
-    "secondary_stats": "Electric DMG Boost",
-    "skill_stats": "Suppression"
-  },
-  "Finchaser 3.0": {
-    "rarity": 5,
-    "attribute_stats": "Strength Boost",
-    "secondary_stats": "Cryo DMG Boost",
-    "skill_stats": "Suppression"
-  },
-  "Finishing Call": {
-    "rarity": 5,
-    "attribute_stats": "Strength Boost",
-    "secondary_stats": "HP Boost",
-    "skill_stats": "Medicant"
-  },
-  "Fortmaker": {
-    "rarity": 5,
-    "attribute_stats": "Intellect Boost",
-    "secondary_stats": "Ultimate Gain Efficiency Boost",
-    "skill_stats": "Inspiring"
-  },
-  "Freedom to Proselytize": {
-    "rarity": 5,
-    "attribute_stats": "Will Boost",
-    "secondary_stats": "Treatment Efficiency Boost",
-    "skill_stats": "Medicant"
-  },
-  "Monaihe": {
-    "rarity": 5,
-    "attribute_stats": "Will Boost",
-    "secondary_stats": "Ultimate Gain Efficiency Boost",
-    "skill_stats": "Inspiring"
   },
   "OBJ Arts Identifier": {
     "rarity": 5,
@@ -239,11 +221,41 @@
     "secondary_stats": "Ultimate Gain Efficiency Boost",
     "skill_stats": "Detonate"
   },
+  "Oblivion": {
+    "rarity": 6,
+    "attribute_stats": "Intellect Boost",
+    "secondary_stats": "Arts DMG Boost",
+    "skill_stats": "Twilight"
+  },
+  "Opus: Etch Figure": {
+    "rarity": 6,
+    "attribute_stats": "Will Boost",
+    "secondary_stats": "Nature DMG Boost",
+    "skill_stats": "Suppression"
+  },
   "Opus: The Living": {
     "rarity": 5,
     "attribute_stats": "Agility Boost",
     "secondary_stats": "Arts DMG Boost",
     "skill_stats": "Infliction"
+  },
+  "Pathfinder's Beacon": {
+    "rarity": 4,
+    "attribute_stats": "Agility Boost",
+    "secondary_stats": "ATK Boost",
+    "skill_stats": "Inspiring"
+  },
+  "Quencher": {
+    "rarity": 4,
+    "attribute_stats": "Will Boost",
+    "secondary_stats": "HP Boost",
+    "skill_stats": "Crusher"
+  },
+  "Rapid Ascent": {
+    "rarity": 6,
+    "attribute_stats": "Main Attribute Boost",
+    "secondary_stats": "Critical Rate Boost",
+    "skill_stats": "Twilight"
   },
   "Rational Farewell": {
     "rarity": 5,
@@ -263,11 +275,29 @@
     "secondary_stats": "ATK Boost",
     "skill_stats": "Twilight"
   },
+  "Sundered Prince": {
+    "rarity": 6,
+    "attribute_stats": "Strength Boost",
+    "secondary_stats": "Critical Rate Boost",
+    "skill_stats": "Crusher"
+  },
   "Sundering Steel": {
     "rarity": 5,
     "attribute_stats": "Agility Boost",
     "secondary_stats": "Physical DMG Boost",
     "skill_stats": "Combative"
+  },
+  "Thermite Cutter": {
+    "rarity": 6,
+    "attribute_stats": "Will Boost",
+    "secondary_stats": "ATK Boost",
+    "skill_stats": "Flow"
+  },
+  "Thunderberge": {
+    "rarity": 6,
+    "attribute_stats": "Strength Boost",
+    "secondary_stats": "HP Boost",
+    "skill_stats": "Medicant"
   },
   "Twelve Questions": {
     "rarity": 5,
@@ -275,70 +305,40 @@
     "secondary_stats": "ATK Boost",
     "skill_stats": "Infliction"
   },
-  "Wild Wanderer": {
-    "rarity": 5,
+  "Umbral Torch": {
+    "rarity": 6,
     "attribute_stats": "Intellect Boost",
-    "secondary_stats": "Electric DMG Boost",
+    "secondary_stats": "Heat DMG Boost",
     "skill_stats": "Infliction"
   },
-  "Aggeloslayer": {
-    "rarity": 4,
-    "attribute_stats": "Will Boost",
-    "secondary_stats": "Arts DMG Boost",
-    "skill_stats": "Suppression"
-  },
-  "Contingent Measure": {
-    "rarity": 4,
+  "Valiant": {
+    "rarity": 6,
     "attribute_stats": "Agility Boost",
     "secondary_stats": "Physical DMG Boost",
-    "skill_stats": "Suppression"
-  },
-  "Fluorescent Roc": {
-    "rarity": 4,
-    "attribute_stats": "Will Boost",
-    "secondary_stats": "ATK Boost",
-    "skill_stats": "Suppression"
-  },
-  "Howling Guard": {
-    "rarity": 4,
-    "attribute_stats": "Intellect Boost",
-    "secondary_stats": "ATK Boost",
-    "skill_stats": "Suppression"
-  },
-  "Hypernova Auto": {
-    "rarity": 4,
-    "attribute_stats": "Intellect Boost",
-    "secondary_stats": "Arts DMG Boost",
-    "skill_stats": "Inspiring"
-  },
-  "Industry 0.1": {
-    "rarity": 4,
-    "attribute_stats": "Strength Boost",
-    "secondary_stats": "ATK Boost",
-    "skill_stats": "Suppression"
-  },
-  "Long Road": {
-    "rarity": 4,
-    "attribute_stats": "Strength Boost",
-    "secondary_stats": "Arts DMG Boost",
-    "skill_stats": "Pursuit"
-  },
-  "Pathfinder's Beacon": {
-    "rarity": 4,
-    "attribute_stats": "Agility Boost",
-    "secondary_stats": "ATK Boost",
-    "skill_stats": "Inspiring"
-  },
-  "Quencher": {
-    "rarity": 4,
-    "attribute_stats": "Will Boost",
-    "secondary_stats": "HP Boost",
-    "skill_stats": "Crusher"
+    "skill_stats": "Combative"
   },
   "Wave Tide": {
     "rarity": 4,
     "attribute_stats": "Intellect Boost",
     "secondary_stats": "ATK Boost",
     "skill_stats": "Pursuit"
+  },
+  "Wedge": {
+    "rarity": 6,
+    "attribute_stats": "Main Attribute Boost",
+    "secondary_stats": "Critical Rate Boost",
+    "skill_stats": "Infliction"
+  },
+  "White Night Nova": {
+    "rarity": 6,
+    "attribute_stats": "Main Attribute Boost",
+    "secondary_stats": "Arts Intensity Boost",
+    "skill_stats": "Infliction"
+  },
+  "Wild Wanderer": {
+    "rarity": 5,
+    "attribute_stats": "Intellect Boost",
+    "secondary_stats": "Electric DMG Boost",
+    "skill_stats": "Infliction"
   }
 }

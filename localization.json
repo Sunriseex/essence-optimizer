@@ -1,0 +1,364 @@
+{
+  "stats": {
+    "attribute": {
+      "Agility Boost": {
+        "en": "Agility Boost",
+        "ru": "Увелич. ловкости"
+      },
+      "Intellect Boost": {
+        "en": "Intellect Boost",
+        "ru": "Увелич. интеллекта"
+      },
+      "Main Attribute Boost": {
+        "en": "Main Attribute Boost",
+        "ru": "Увелич. основ. показателя"
+      },
+      "Strength Boost": {
+        "en": "Strength Boost",
+        "ru": "Увелич. силы"
+      },
+      "Will Boost": {
+        "en": "Will Boost",
+        "ru": "Увелич. воли"
+      }
+    },
+    "secondary": {
+      "Arts DMG Boost": {
+        "en": "Arts DMG Boost",
+        "ru": "Увелич. УРН от искусств"
+      },
+      "Arts Intensity Boost": {
+        "en": "Arts Intensity Boost",
+        "ru": "Увелич. силы искусств"
+      },
+      "ATK Boost": {
+        "en": "ATK Boost",
+        "ru": "Увелич. атаки"
+      },
+      "Critical Rate Boost": {
+        "en": "Critical Rate Boost",
+        "ru": "Увелич. шанса крит. удара"
+      },
+      "Cryo DMG Boost": {
+        "en": "Cryo DMG Boost",
+        "ru": "Увелич. криогенного УРН"
+      },
+      "Electric DMG Boost": {
+        "en": "Electric DMG Boost",
+        "ru": "Увелич. энергетического УРН"
+      },
+      "Heat DMG Boost": {
+        "en": "Heat DMG Boost",
+        "ru": "Увелич. теплового УРН"
+      },
+      "HP Boost": {
+        "en": "HP Boost",
+        "ru": "Увелич. ОЗ"
+      },
+      "Nature DMG Boost": {
+        "en": "Nature DMG Boost",
+        "ru": "Увелич. природного УРН"
+      },
+      "Physical DMG Boost": {
+        "en": "Physical DMG Boost",
+        "ru": "Увелич. физического УРН"
+      },
+      "Treatment Efficiency Boost": {
+        "en": "Treatment Efficiency Boost",
+        "ru": "Увелич. эффективности лечения"
+      },
+      "Ultimate Gain Efficiency Boost": {
+        "en": "Ultimate Gain Efficiency Boost",
+        "ru": "Увелич. накопления СЭ"
+      }
+    },
+    "skill": {
+      "Assault": {
+        "en": "Assault",
+        "ru": "Штурм"
+      },
+      "Brutality": {
+        "en": "Brutality",
+        "ru": "Жестокость"
+      },
+      "Combative": {
+        "en": "Combative",
+        "ru": "Драчливость"
+      },
+      "Crusher": {
+        "en": "Crusher",
+        "ru": "Разрушение"
+      },
+      "Detonate": {
+        "en": "Detonate",
+        "ru": "Детонация"
+      },
+      "Efficacy": {
+        "en": "Efficacy",
+        "ru": "Эффективность"
+      },
+      "Flow": {
+        "en": "Flow",
+        "ru": "Поток"
+      },
+      "Fracture": {
+        "en": "Fracture",
+        "ru": "Разрыв"
+      },
+      "Infliction": {
+        "en": "Infliction",
+        "ru": "Поражение"
+      },
+      "Inspiring": {
+        "en": "Inspiring",
+        "ru": "Муза"
+      },
+      "Medicant": {
+        "en": "Medicant",
+        "ru": "Лечение"
+      },
+      "Pursuit": {
+        "en": "Pursuit",
+        "ru": "Азарт"
+      },
+      "Suppression": {
+        "en": "Suppression",
+        "ru": "Подавление"
+      },
+      "Twilight": {
+        "en": "Twilight",
+        "ru": "Сумерки"
+      }
+    }
+  },
+  "weapons": {
+    "Aggeloslayer": {
+      "en": "Aggeloslayer",
+      "ru": "Аггелоубийца"
+    },
+    "Ancient Canal": {
+      "en": "Ancient Canal",
+      "ru": "Древний канал"
+    },
+    "Artzy Tyrannical": {
+      "en": "Artzy Tyrannical",
+      "ru": "Артист Тиранический"
+    },
+    "Aspirant": {
+      "en": "Aspirant",
+      "ru": "Устремление"
+    },
+    "Chimeric Justice": {
+      "en": "Chimeric Justice",
+      "ru": "Химера правосудия"
+    },
+    "Chivalric Virtues": {
+      "en": "Chivalric Virtues",
+      "ru": "Рыцарская добродетель"
+    },
+    "Clannibal": {
+      "en": "Clannibal",
+      "ru": "Кланнибал"
+    },
+    "Cohesive Traction": {
+      "en": "Cohesive Traction",
+      "ru": "Прочное притяжение"
+    },
+    "Contingent Measure": {
+      "en": "Contingent Measure",
+      "ru": "Черезвычайная мера"
+    },
+    "Delivery Guaranteed": {
+      "en": "Delivery Guaranteed",
+      "ru": "Гарантированная доставка"
+    },
+    "Detonation Unit": {
+      "en": "Detonation Unit",
+      "ru": "Модуль взрыва"
+    },
+    "Dreams of the Starry Beach": {
+      "en": "Dreams of the Starry Beach",
+      "ru": "Мечта о звездном береге"
+    },
+    "Eminent Repute": {
+      "en": "Eminent Repute",
+      "ru": "Безупречная репутация"
+    },
+    "Exemplar": {
+      "en": "Exemplar",
+      "ru": "Эталон"
+    },
+    "Finchaser 3.0": {
+      "en": "Finchaser 3.0",
+      "ru": "Водоплаволов 3.0"
+    },
+    "Finishing Call": {
+      "en": "Finishing Call",
+      "ru": "Финальный вызов"
+    },
+    "Fluorescent Roc": {
+      "en": "Fluorescent Roc",
+      "ru": "Флуоресценция"
+    },
+    "Forgeborn Scathe": {
+      "en": "Forgeborn Scathe",
+      "ru": "Гнев кузни"
+    },
+    "Former Finery": {
+      "en": "Former Finery",
+      "ru": "Былой шик"
+    },
+    "Fortmaker": {
+      "en": "Fortmaker",
+      "ru": "Скала"
+    },
+    "Freedom to Proselytize": {
+      "en": "Freedom to Proselytize",
+      "ru": "Свободное служение"
+    },
+    "Grand Vision": {
+      "en": "Grand Vision",
+      "ru": "Великое видение"
+    },
+    "Howling Guard": {
+      "en": "Howling Guard",
+      "ru": "Ревущий страж"
+    },
+    "Hypernova Auto": {
+      "en": "Hypernova Auto",
+      "ru": "Гиперновая"
+    },
+    "Industry 0.1": {
+      "en": "Industry 0.1",
+      "ru": "Индустрия 0.1"
+    },
+    "JET": {
+      "en": "JET",
+      "ru": "Реактивная пика"
+    },
+    "Khravengger": {
+      "en": "Khravengger",
+      "ru": "Хравенгер"
+    },
+    "Long Road": {
+      "en": "Long Road",
+      "ru": "Долгий путь"
+    },
+    "Monaihe": {
+      "en": "Monaihe",
+      "ru": "Монаихэ"
+    },
+    "Mountain Bearer": {
+      "en": "Mountain Bearer",
+      "ru": "Хранитель Горы"
+    },
+    "Navigator": {
+      "en": "Navigator",
+      "ru": "Навигатор"
+    },
+    "Never Rest": {
+      "en": "Never Rest",
+      "ru": "Неустанность"
+    },
+    "OBJ Arts Identifier": {
+      "en": "OBJ Arts Identifier",
+      "ru": "OBJ Идентификатор искусств"
+    },
+    "OBJ Edge of Lightness": {
+      "en": "OBJ Edge of Lightness",
+      "ru": "OBJ Клинок света"
+    },
+    "OBJ Heavy Burden": {
+      "en": "OBJ Heavy Burden",
+      "ru": "OBJ Тяжелое бремя"
+    },
+    "OBJ Razorhorn": {
+      "en": "OBJ Razorhorn",
+      "ru": "OBJ Рог-бритва"
+    },
+    "OBJ Velocitous": {
+      "en": "OBJ Velocitous",
+      "ru": "OBJ Прыть"
+    },
+    "Oblivion": {
+      "en": "Oblivion",
+      "ru": "Забвение"
+    },
+    "Opus: Etch Figure": {
+      "en": "Opus: Etch Figure",
+      "ru": "Опус травления"
+    },
+    "Opus: The Living": {
+      "en": "Opus: The Living",
+      "ru": "Опус живого"
+    },
+    "Pathfinder's Beacon": {
+      "en": "Pathfinder's Beacon",
+      "ru": "Маяк следопыта"
+    },
+    "Quencher": {
+      "en": "Quencher",
+      "ru": "Гаситель"
+    },
+    "Rapid Ascent": {
+      "en": "Rapid Ascent",
+      "ru": "Резкий подъем"
+    },
+    "Rational Farewell": {
+      "en": "Rational Farewell",
+      "ru": "Прощальный обет"
+    },
+    "Seeker of Dark Lung": {
+      "en": "Seeker of Dark Lung",
+      "ru": "Искатель темного луна"
+    },
+    "Stanza of Memorials": {
+      "en": "Stanza of Memorials",
+      "ru": "Станс памяти"
+    },
+    "Sundered Prince": {
+      "en": "Sundered Prince",
+      "ru": "Растерзанный принц"
+    },
+    "Sundering Steel": {
+      "en": "Sundering Steel",
+      "ru": "Стальной раскол"
+    },
+    "Thermite Cutter": {
+      "en": "Thermite Cutter",
+      "ru": "Термитный резак"
+    },
+    "Thunderberge": {
+      "en": "Thunderberge",
+      "ru": "Громберг"
+    },
+    "Twelve Questions": {
+      "en": "Twelve Questions",
+      "ru": "Двенадцать вопросов"
+    },
+    "Umbral Torch": {
+      "en": "Umbral Torch",
+      "ru": "Ночной факел"
+    },
+    "Valiant": {
+      "en": "Valiant",
+      "ru": "Доблесть"
+    },
+    "Wave Tide": {
+      "en": "Wave Tide",
+      "ru": "Морской вал"
+    },
+    "Wedge": {
+      "en": "Wedge",
+      "ru": "Клин"
+    },
+    "White Night Nova": {
+      "en": "White Night Nova",
+      "ru": "Звезда белых ночей"
+    },
+    "Wild Wanderer": {
+      "en": "Wild Wanderer",
+      "ru": "Дикий странник"
+    }
+  }
+}

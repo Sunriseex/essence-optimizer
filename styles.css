@@ -27,8 +27,15 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1720px;
             margin: 0 auto;
+        }
+
+        .top-layout {
+            display: grid;
+            grid-template-columns: minmax(320px, 420px) 1fr;
+            gap: 24px;
+            align-items: start;
         }
 
         h1 {
@@ -59,6 +66,42 @@
             font-size: 0.875rem;
             color: var(--color-text-muted);
             margin-bottom: 1rem;
+        }
+
+        .panel-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .panel-top h2 {
+            margin-bottom: 0;
+        }
+
+        .language-switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+        }
+
+        .language-switch select {
+            background: var(--color-bg-tertiary);
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .stats-actions {
+            display: grid;
+            gap: 10px;
+            margin-top: 16px;
         }
 
         .rarity-section {
@@ -567,11 +610,10 @@
             border-color: var(--color-accent);
         }
 
-        .header-actions {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 1.5rem;
+        .panel-reset-btn {
+            margin-left: 0;
+            width: 100%;
+            padding: 12px 16px;
         }
 
         .result-weapon-item {
@@ -676,6 +718,16 @@
         }
 
         @media (max-width: 768px) {
+            .top-layout {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .panel-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
             .weapon-list {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             }
