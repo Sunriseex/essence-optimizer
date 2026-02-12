@@ -1,75 +1,83 @@
 <!DOCTYPE html>
 <html lang="ru">
-<link rel="icon" href="/essence-optimizer/favicon.png" type="image/png">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Essence Farm Optimizer - Arknights Endfield</title>
-        <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="/essence-optimizer/favicon.png" type="image/png">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Essence Farm Optimizer</h1>
-        
-        <div class="header-actions">
-            <button class="reset-btn" onclick="resetAll()">Сбросить всё</button>
-        </div>
+        <h1 id="appTitle">Essence Farm Optimizer</h1>
 
-        <div class="section">
-            <h2>🗡️ Оружие</h2>
-            <div class="section-subtitle">
-                <strong>Левый клик:</strong> Отметить оружие, для которого нужно фармить эссенцию (синий)<br>
-                <strong>Правый клик:</strong> Отметить оружие с уже готовой эссенцией (зелёный, не будет учитываться в фарме)
-            </div>
-            
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-box owned"></div>
-                    <span>Есть на аккаунте</span>
+        <div class="top-layout">
+            <div class="section stats-panel">
+                <div class="panel-top">
+                    <h2 id="statsSectionTitle">📊 Желаемые статы</h2>
+                    <div class="language-switch">
+                        <label for="languageSelect" id="languageLabel">Язык</label>
+                        <select id="languageSelect" onchange="setLanguage(this.value)">
+                            <option value="ru">Русский</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-box essence"></div>
-                    <span>Эссенция готова</span>
-                </div>
-            </div>
+                <div class="section-subtitle" id="statsSectionSubtitle">Выберите статы для эссенции оружия, которое нужно фармить. Secondary и Skill можно выбрать одновременно вручную.</div>
 
-            <div id="weaponList"></div>
-        </div>
+                <div class="stats-selector">
+                    <div class="stat-group">
+                        <h3 id="attributeGroupTitle">Attribute Stats <span class="stat-limit">(максимум 3 из 5)</span></h3>
+                        <div class="stat-chips" id="attributeStats"></div>
+                    </div>
 
-        <div class="section">
-            <h2>📊 Желаемые статы</h2>
-            <div class="section-subtitle">Выберите статы для эссенции оружия, которое нужно фармить. Secondary и Skill можно выбрать одновременно вручную.</div>
-            
-            <div class="stats-selector">
-                <div class="stat-group">
-                    <h3>Attribute Stats <span class="stat-limit">(максимум 3 из 5)</span></h3>
-                    <div class="stat-chips" id="attributeStats"></div>
+                    <div class="stat-group">
+                        <h3 id="secondaryGroupTitle">Secondary Stats <span class="stat-limit">(выбрать 1)</span></h3>
+                        <div class="stat-chips" id="secondaryStats"></div>
+                    </div>
+
+                    <div class="stat-group">
+                        <h3 id="skillGroupTitle">Skill Stats <span class="stat-limit">(выбрать 1)</span></h3>
+                        <div class="stat-chips" id="skillStats"></div>
+                    </div>
                 </div>
 
-                <div class="stat-group">
-                    <h3>Secondary Stats <span class="stat-limit">(выбрать 1)</span></h3>
-                    <div class="stat-chips" id="secondaryStats"></div>
-                </div>
-
-                <div class="stat-group">
-                    <h3>Skill Stats <span class="stat-limit">(выбрать 1)</span></h3>
-                    <div class="stat-chips" id="skillStats"></div>
+                <div class="stats-actions">
+                    <button class="btn" id="calculateBtn" onclick="runCalculateWithLoading()" disabled>
+                        Найти лучшую локацию
+                    </button>
+                    <button class="reset-btn panel-reset-btn" id="resetBtn" onclick="resetAll()">Сбросить всё</button>
                 </div>
             </div>
 
-            <button class="btn" id="calculateBtn" onclick="runCalculateWithLoading()" disabled>
-                Найти лучшую локацию
-            </button>
+            <div class="section weapons-panel">
+                <h2 id="weaponsSectionTitle">🗡️ Оружие</h2>
+                <div class="section-subtitle" id="weaponsSectionSubtitle">
+                    <strong>Левый клик:</strong> Отметить оружие, для которого нужно фармить эссенцию (синий)<br>
+                    <strong>Правый клик:</strong> Отметить оружие с уже готовой эссенцией (зелёный, не будет учитываться в фарме)
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-box owned"></div>
+                        <span id="legendOwned">Есть на аккаунте</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box essence"></div>
+                        <span id="legendEssence">Эссенция готова</span>
+                    </div>
+                </div>
+
+                <div id="weaponList"></div>
+            </div>
         </div>
 
         <div class="section results" id="resultsSection">
-            <h2>🎯 Результаты</h2>
+            <h2 id="resultsSectionTitle">🎯 Результаты</h2>
             <div id="resultsContainer"></div>
         </div>
     </div>
 
-        <script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
-
