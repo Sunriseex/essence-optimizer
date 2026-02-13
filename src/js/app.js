@@ -13,6 +13,9 @@
         let hasInitializedUI = false;
         let currentLanguage = document.documentElement.lang === 'en' ? 'en' : 'ru';
         let isInterfaceHidden = false;
+        let uidCopyResetTimeoutId = null;
+        const GAME_UID = '6639599843';
+        const REPOSITORY_URL = 'https://github.com/Sunriseex/essence-optimizer';
 
         const I18N = {
             ru: {
@@ -28,6 +31,10 @@
                 weaponSearchLabel: 'Поиск оружия',
                 weaponSearchPlaceholder: 'Введите название оружия',
                 weaponSearchNoMatches: 'По запросу ничего не найдено.',
+                repoLinkLabel: 'Открыть GitHub репозиторий',
+                uidButtonLabel: 'UID: {uid}',
+                uidCopied: 'UID скопирован',
+                uidCopyFailed: 'Не удалось скопировать',
                 hideUiBtn: 'Скрыть интерфейс',
                 showUiBtn: 'Показать интерфейс',
                 legendOwned: 'Есть на аккаунте',
@@ -78,6 +85,10 @@
                 weaponSearchLabel: 'Weapon Search',
                 weaponSearchPlaceholder: 'Type weapon name',
                 weaponSearchNoMatches: 'No weapons match your search.',
+                repoLinkLabel: 'Open GitHub repository',
+                uidButtonLabel: 'UID: {uid}',
+                uidCopied: 'UID copied',
+                uidCopyFailed: 'Copy failed',
                 hideUiBtn: 'Hide Interface',
                 showUiBtn: 'Show Interface',
                 legendOwned: 'Owned on account',
@@ -177,6 +188,14 @@
             if (byId('weaponSearchLabel')) byId('weaponSearchLabel').textContent = t('weaponSearchLabel');
             if (byId('weaponSearchInput')) byId('weaponSearchInput').placeholder = t('weaponSearchPlaceholder');
             if (byId('weaponSearchNoMatches')) byId('weaponSearchNoMatches').textContent = t('weaponSearchNoMatches');
+            if (byId('repoLink')) {
+                byId('repoLink').setAttribute('href', REPOSITORY_URL);
+                byId('repoLink').setAttribute('aria-label', t('repoLinkLabel'));
+                byId('repoLink').setAttribute('title', t('repoLinkLabel'));
+            }
+            if (byId('uidCopyBtn') && !byId('uidCopyBtn').classList.contains('copied') && !byId('uidCopyBtn').classList.contains('copy-failed')) {
+                byId('uidCopyBtn').textContent = t('uidButtonLabel', { uid: GAME_UID });
+            }
             if (byId('focusModeToggle')) byId('focusModeToggle').textContent = isInterfaceHidden ? t('showUiBtn') : t('hideUiBtn');
             if (byId('legendOwned')) byId('legendOwned').textContent = t('legendOwned');
             if (byId('legendEssence')) byId('legendEssence').textContent = t('legendEssence');
@@ -186,6 +205,63 @@
             if (byId('calculateBtn')) byId('calculateBtn').textContent = t('calculateBtn');
             if (byId('resetBtn')) byId('resetBtn').textContent = t('resetBtn');
             if (byId('resultsSectionTitle')) byId('resultsSectionTitle').textContent = t('resultsSectionTitle');
+        }
+
+        function restoreUidButtonDefaultLabel() {
+            const button = document.getElementById('uidCopyBtn');
+            if (!button) {
+                return;
+            }
+            button.classList.remove('copied', 'copy-failed');
+            button.textContent = t('uidButtonLabel', { uid: GAME_UID });
+        }
+
+        function setUidButtonFeedback(label, cssClass) {
+            const button = document.getElementById('uidCopyBtn');
+            if (!button) {
+                return;
+            }
+
+            button.classList.remove('copied', 'copy-failed');
+            if (cssClass) {
+                button.classList.add(cssClass);
+            }
+            button.textContent = label;
+
+            if (uidCopyResetTimeoutId !== null) {
+                clearTimeout(uidCopyResetTimeoutId);
+            }
+
+            uidCopyResetTimeoutId = window.setTimeout(() => {
+                uidCopyResetTimeoutId = null;
+                restoreUidButtonDefaultLabel();
+            }, 1600);
+        }
+
+        async function copyGameUid() {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(GAME_UID);
+                } else {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = GAME_UID;
+                    textarea.setAttribute('readonly', 'readonly');
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    textarea.style.pointerEvents = 'none';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    const copied = document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    if (!copied) {
+                        throw new Error('copy-fallback-failed');
+                    }
+                }
+
+                setUidButtonFeedback(t('uidCopied'), 'copied');
+            } catch (error) {
+                setUidButtonFeedback(t('uidCopyFailed'), 'copy-failed');
+            }
         }
 
         function setLanguage(language) {
