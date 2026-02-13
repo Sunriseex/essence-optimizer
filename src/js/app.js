@@ -13,6 +13,10 @@
         let hasInitializedUI = false;
         let currentLanguage = document.documentElement.lang === 'en' ? 'en' : 'ru';
         let isInterfaceHidden = false;
+        const STORAGE_KEYS = {
+            ownedWeapons: 'essenceOptimizer.ownedWeapons',
+            essenceReady: 'essenceOptimizer.essenceReady'
+        };
         let uidCopyResetTimeoutId = null;
         const GAME_UID = '6639599843';
         const REPOSITORY_URL = 'https://github.com/Sunriseex/essence-optimizer';
@@ -387,6 +391,57 @@
             selectedSecondaryStat: null,
             selectedSkillStat: null
         };
+
+        function getValidStoredWeaponList(rawValue) {
+            if (!Array.isArray(rawValue)) {
+                return [];
+            }
+
+            return rawValue.filter(weapon =>
+                typeof weapon === 'string' &&
+                Object.prototype.hasOwnProperty.call(weaponsData, weapon)
+            );
+        }
+
+        function loadPersistedWeaponSelections() {
+            let storedOwnedWeapons = [];
+            let storedEssenceReady = [];
+
+            try {
+                const rawOwnedWeapons = localStorage.getItem(STORAGE_KEYS.ownedWeapons);
+                const rawEssenceReady = localStorage.getItem(STORAGE_KEYS.essenceReady);
+
+                storedOwnedWeapons = rawOwnedWeapons ? getValidStoredWeaponList(JSON.parse(rawOwnedWeapons)) : [];
+                storedEssenceReady = rawEssenceReady ? getValidStoredWeaponList(JSON.parse(rawEssenceReady)) : [];
+            } catch (error) {
+                // Ignore malformed or inaccessible storage values.
+                return;
+            }
+
+            state.ownedWeapons.clear();
+            state.essenceReady.clear();
+
+            storedOwnedWeapons.forEach(weapon => state.ownedWeapons.add(weapon));
+            storedEssenceReady.forEach(weapon => {
+                state.essenceReady.add(weapon);
+                state.ownedWeapons.add(weapon);
+            });
+        }
+
+        function persistWeaponSelections() {
+            try {
+                localStorage.setItem(
+                    STORAGE_KEYS.ownedWeapons,
+                    JSON.stringify(Array.from(state.ownedWeapons))
+                );
+                localStorage.setItem(
+                    STORAGE_KEYS.essenceReady,
+                    JSON.stringify(Array.from(state.essenceReady))
+                );
+            } catch (error) {
+                // Ignore storage write failures.
+            }
+        }
 
         function triggerWeaponClickFill(element, interactionEvent) {
             if (!interactionEvent || !element) {
@@ -852,6 +907,7 @@
                     state.ownedWeapons.delete(weapon);
                 }
             });
+            persistWeaponSelections();
 
             updateMainWeaponList();
 
@@ -860,6 +916,8 @@
         }
 
         function autoSelectStats() {
+            persistWeaponSelections();
+
             const weaponsNeedingEssence = Array.from(state.ownedWeapons)
                 .filter(weapon => !state.essenceReady.has(weapon));
 
@@ -1667,6 +1725,7 @@
             state.selectedAttributeStats.clear();
             state.selectedSecondaryStat = null;
             state.selectedSkillStat = null;
+            persistWeaponSelections();
 
             document.querySelectorAll('.weapon-item').forEach(el => {
                 el.classList.remove('selected', 'has-essence');
@@ -1741,10 +1800,11 @@
         async function initApp() {
             try {
                 await loadDataFromJson();
+                loadPersistedWeaponSelections();
                 setLanguage(currentLanguage);
                 initWeapons();
                 initStats();
-                updateCalculateButton();
+                autoSelectStats();
                 window.addEventListener('resize', refreshWeaponListHeights);
                 hasInitializedUI = true;
             } catch (error) {
