@@ -62,9 +62,9 @@
 
         .focus-toggle {
             position: fixed;
-            left: 50%;
+            right: 16px;
             bottom: 16px;
-            transform: translateX(-50%);
+            transform: none;
             z-index: 2000;
             border: 1px solid var(--color-border);
             background: rgba(15, 23, 42, 0.8);
