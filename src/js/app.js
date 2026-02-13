@@ -60,10 +60,10 @@
                 scoreWeapons: '{percentage}% оружия ({matched}/{total})',
                 scoreStats: '{matched}/{total} статов',
                 errorFileProtocol: 'Браузер блокирует загрузку JSON при открытии HTML напрямую.',
-                errorNetwork: 'Ошибка сети при загрузке weapons.json, locations.json и localization.json',
+                errorNetwork: 'Ошибка сети при загрузке data/weapons.json, data/locations.json и data/localization.json',
                 errorFetchStatus: 'Не удалось загрузить JSON (weapons: {weaponsStatus}, locations: {locationsStatus}, localization: {localizationStatus})',
-                errorInvalidJson: 'Некорректный формат JSON в weapons.json, locations.json или localization.json',
-                errorEmptyJson: 'JSON загружен, но список оружия или локаций пуст. Проверьте содержимое weapons.json, locations.json и localization.json'
+                errorInvalidJson: 'Некорректный формат JSON в data/weapons.json, data/locations.json или data/localization.json',
+                errorEmptyJson: 'JSON загружен, но список оружия или локаций пуст. Проверьте содержимое data/weapons.json, data/locations.json и data/localization.json'
             },
             en: {
                 pageTitle: 'Essence Farm Optimizer - Arknights Endfield',
@@ -110,10 +110,10 @@
                 scoreWeapons: '{percentage}% weapons ({matched}/{total})',
                 scoreStats: '{matched}/{total} stats',
                 errorFileProtocol: 'Browser blocks JSON loading when opening HTML directly.',
-                errorNetwork: 'Network error while loading weapons.json, locations.json, and localization.json',
+                errorNetwork: 'Network error while loading data/weapons.json, data/locations.json, and data/localization.json',
                 errorFetchStatus: 'Failed to load JSON (weapons: {weaponsStatus}, locations: {locationsStatus}, localization: {localizationStatus})',
-                errorInvalidJson: 'Invalid JSON format in weapons.json, locations.json, or localization.json',
-                errorEmptyJson: 'JSON loaded, but weapons or locations list is empty. Check weapons.json, locations.json, and localization.json'
+                errorInvalidJson: 'Invalid JSON format in data/weapons.json, data/locations.json, or data/localization.json',
+                errorEmptyJson: 'JSON loaded, but weapons or locations list is empty. Check data/weapons.json, data/locations.json, and data/localization.json'
             }
         };
 
@@ -268,9 +268,9 @@
 
             try {
                 [weaponsResponse, locationsResponse, localizationResponse] = await Promise.all([
-                    fetch('weapons.json'),
-                    fetch('locations.json'),
-                    fetch('localization.json')
+                    fetch('data/weapons.json'),
+                    fetch('data/locations.json'),
+                    fetch('data/localization.json')
                 ]);
             } catch (error) {
                 if (isFileProtocol) {
@@ -438,14 +438,14 @@
             };
 
             if (iconOverrides[weapon]) {
-                return `weapons/${iconOverrides[weapon]}`;
+                return `assets/weapons/${iconOverrides[weapon]}`;
             }
 
             const normalizedName = weapon
                 .toLowerCase()
                 .replace(/:/g, '')
                 .replace(/\s+/g, '_');
-            return `weapons/${normalizedName}.png`;
+            return `assets/weapons/${normalizedName}.png`;
         }
 
         function initWeapons() {
