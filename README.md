@@ -25,11 +25,14 @@
 ## Структура проекта
 
 - `index.html` - основной HTML.
-- `styles.css` - стили и анимации.
-- `app.js` - логика приложения.
-- `weapons.json` - данные по оружию.
-- `locations.json` - данные по локациям.
-- `weapons/` - иконки оружия.
+- `src/css/styles.css` - стили и анимации.
+- `src/js/app.js` - логика приложения.
+- `data/weapons.json` - данные по оружию.
+- `data/locations.json` - данные по локациям.
+- `data/localization.json` - локализация интерфейса, статов и названий.
+- `assets/backgrounds/` - фоновые изображения.
+- `assets/weapons/` - иконки оружия.
+- `assets/icons/` - иконки приложения.
 
 ## Как пользоваться
 
@@ -44,7 +47,7 @@
 
 ## Формат данных
 
-### `weapons.json`
+### `data/weapons.json`
 
 ```json
 {
@@ -57,7 +60,7 @@
 }
 ```
 
-### `locations.json`
+### `data/locations.json`
 
 ```json
 {
@@ -71,6 +74,6 @@
 
 ## Кастомизация
 
-- Данные: `weapons.json`, `locations.json`.
-- Стили и анимации: `styles.css`.
-- Логика подбора/фильтрации: `app.js`.
+- Данные: `data/weapons.json`, `data/locations.json`, `data/localization.json`.
+- Стили и анимации: `src/css/styles.css`.
+- Логика подбора/фильтрации: `src/js/app.js`.
