@@ -14,7 +14,7 @@
         <div class="top-layout">
             <div class="section stats-panel">
                 <div class="panel-top">
-                    <h2 id="statsSectionTitle">📊 Желаемые статы</h2>
+                    <h2 id="statsSectionTitle">Желаемые статы</h2>
                     <div class="language-switch">
                         <label for="languageSelect" id="languageLabel">Язык</label>
                         <select id="languageSelect" onchange="setLanguage(this.value)">
@@ -51,10 +51,15 @@
             </div>
 
             <div class="section weapons-panel">
-                <h2 id="weaponsSectionTitle">🗡️ Оружие</h2>
+                <h2 id="weaponsSectionTitle">Оружие</h2>
                 <div class="section-subtitle" id="weaponsSectionSubtitle">
                     <strong>Левый клик:</strong> Отметить оружие, для которого нужно фармить эссенцию (синий)<br>
                     <strong>Правый клик:</strong> Отметить оружие с уже готовой эссенцией (зелёный, не будет учитываться в фарме)
+                </div>
+                <div class="weapon-search">
+                    <label for="weaponSearchInput" id="weaponSearchLabel">Поиск оружия</label>
+                    <input type="search" id="weaponSearchInput" placeholder="Введите название оружия" oninput="handleWeaponSearchInput()">
+                    <div class="weapon-search-empty" id="weaponSearchNoMatches" style="display: none;"></div>
                 </div>
 
                 <div class="legend">
@@ -73,10 +78,11 @@
         </div>
 
         <div class="section results" id="resultsSection">
-            <h2 id="resultsSectionTitle">🎯 Результаты</h2>
+            <h2 id="resultsSectionTitle">Результаты</h2>
             <div id="resultsContainer"></div>
         </div>
     </div>
+    <button class="focus-toggle" id="focusModeToggle" onclick="toggleInterfaceVisibility()">Скрыть интерфейс</button>
 
     <script src="app.js"></script>
 </body>
