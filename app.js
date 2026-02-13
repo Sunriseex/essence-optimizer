@@ -7,10 +7,12 @@
                 attribute: {},
                 secondary: {},
                 skill: {}
-            }
+            },
+            locations:{}
         };
         let hasInitializedUI = false;
         let currentLanguage = document.documentElement.lang === 'en' ? 'en' : 'ru';
+        let isInterfaceHidden = false;
 
         const I18N = {
             ru: {
@@ -19,10 +21,15 @@
                 languageLabel: 'Язык',
                 languageRu: 'Русский',
                 languageEn: 'English',
-                statsSectionTitle: '📊 Желаемые статы',
+                statsSectionTitle: 'Желаемые статы',
                 statsSectionSubtitle: 'Выберите статы для эссенции оружия, которое нужно фармить. Secondary и Skill можно выбрать одновременно вручную.',
-                weaponsSectionTitle: '🗡️ Оружие',
+                weaponsSectionTitle: 'Оружие',
                 weaponsSectionSubtitle: '<strong>Левый клик:</strong> Отметить оружие, для которого нужно фармить эссенцию (синий)<br><strong>Правый клик:</strong> Отметить оружие с уже готовой эссенцией (зелёный, не будет учитываться в фарме)',
+                weaponSearchLabel: 'Поиск оружия',
+                weaponSearchPlaceholder: 'Введите название оружия',
+                weaponSearchNoMatches: 'По запросу ничего не найдено.',
+                hideUiBtn: 'Скрыть интерфейс',
+                showUiBtn: 'Показать интерфейс',
                 legendOwned: 'Есть на аккаунте',
                 legendEssence: 'Эссенция готова',
                 attributeGroupTitle: 'Attribute Stats <span class="stat-limit">(максимум 3 из 5)</span>',
@@ -30,19 +37,18 @@
                 skillGroupTitle: 'Skill Stats <span class="stat-limit">(выбрать 1)</span>',
                 calculateBtn: 'Найти лучшую локацию',
                 resetBtn: 'Сбросить всё',
-                resultsSectionTitle: '🎯 Результаты',
+                resultsSectionTitle: 'Результаты',
                 rarityLabel: '{rarity}★ оружие',
                 tooltipAttribute: 'Attribute:',
                 tooltipSecondary: 'Secondary:',
                 tooltipSkill: 'Skill:',
-                noResultsSelectWeapon: '❌ Выберите хотя бы одно оружие для фарма (левый клик)',
-                noResultsAllFarmed: '✅ Всё выбранное оружие уже отфармлено.',
-                noResultsInvalidSelection: '❌ Выберите ровно 3 Attribute Stats и хотя бы 1 стат из Secondary или Skill.',
+                noResultsSelectWeapon: 'Выберите хотя бы одно оружие для фарма (левый клик)',
+                noResultsAllFarmed: 'Всё выбранное оружие уже отфармлено.',
+                noResultsInvalidSelection: 'Выберите ровно 3 Attribute Stats и хотя бы 1 стат из Secondary или Skill.',
                 noResultsNoMatch: 'Ни одно выбранное оружие не подходит под выбранные Secondary/Skill статы. Измените выбор.',
                 noResultsNoLocation: 'Не найдено локаций, где этот набор статов может дропнуть оружие: {weapons}',
-                skippedWeapons: 'Не вошли в текущий набор статов:',
-                groupBest: '🏆 Группа 1',
-                groupN: '🎯 Группа {index}',
+                groupBest: 'Группа 1',
+                groupN: 'Группа {index}',
                 groupStats: 'статы: {stats}',
                 weaponsInGroup: 'Оружие в группе ({count}):',
                 attrStatsLabel: 'Attribute Stats:',
@@ -65,10 +71,15 @@
                 languageLabel: 'Language',
                 languageRu: 'Russian',
                 languageEn: 'English',
-                statsSectionTitle: '📊 Desired Stats',
+                statsSectionTitle: 'Desired Stats',
                 statsSectionSubtitle: 'Choose essence stats for weapons you want to farm. Secondary and Skill can be selected together manually.',
-                weaponsSectionTitle: '🗡️ Weapons',
+                weaponsSectionTitle: 'Weapons',
                 weaponsSectionSubtitle: '<strong>Left click:</strong> Mark weapon for essence farming (blue)<br><strong>Right click:</strong> Mark weapon as already farmed (green, excluded from farming)',
+                weaponSearchLabel: 'Weapon Search',
+                weaponSearchPlaceholder: 'Type weapon name',
+                weaponSearchNoMatches: 'No weapons match your search.',
+                hideUiBtn: 'Hide Interface',
+                showUiBtn: 'Show Interface',
                 legendOwned: 'Owned on account',
                 legendEssence: 'Essence ready',
                 attributeGroupTitle: 'Attribute Stats <span class="stat-limit">(max 3 of 5)</span>',
@@ -76,19 +87,18 @@
                 skillGroupTitle: 'Skill Stats <span class="stat-limit">(choose 1)</span>',
                 calculateBtn: 'Find Best Location',
                 resetBtn: 'Reset All',
-                resultsSectionTitle: '🎯 Results',
+                resultsSectionTitle: 'Results',
                 rarityLabel: '{rarity}-Star Weapons',
                 tooltipAttribute: 'Attribute:',
                 tooltipSecondary: 'Secondary:',
                 tooltipSkill: 'Skill:',
-                noResultsSelectWeapon: '❌ Select at least one weapon to farm (left click)',
-                noResultsAllFarmed: '✅ All selected weapons are already farmed.',
-                noResultsInvalidSelection: '❌ Select exactly 3 Attribute Stats and at least 1 stat from Secondary or Skill.',
+                noResultsSelectWeapon: 'Select at least one weapon to farm (left click)',
+                noResultsAllFarmed: 'All selected weapons are already farmed.',
+                noResultsInvalidSelection: 'Select exactly 3 Attribute Stats and at least 1 stat from Secondary or Skill.',
                 noResultsNoMatch: 'No selected weapon matches the chosen Secondary/Skill stats. Change your selection.',
                 noResultsNoLocation: 'No locations found where this stat set can drop weapons: {weapons}',
-                skippedWeapons: 'Not included in the current stat set:',
-                groupBest: '🏆 Group 1',
-                groupN: '🎯 Group {index}',
+                groupBest: 'Group 1',
+                groupN: 'Group {index}',
                 groupStats: 'stats: {stats}',
                 weaponsInGroup: 'Weapons in group ({count}):',
                 attrStatsLabel: 'Attribute Stats:',
@@ -138,6 +148,12 @@
             return localized || fallback || statKey;
         }
 
+        function getLocalizedLocationName(locationKey) {
+            const localized = localizationData.locations?.[locationKey]?.[currentLanguage];
+            const fallback = localizationData.locations?.[locationKey]?.en;
+            return localized || fallback || locationKey;
+        }
+
         function applyStaticTranslations() {
             document.documentElement.lang = currentLanguage;
             document.title = t('pageTitle');
@@ -158,6 +174,10 @@
             if (byId('statsSectionSubtitle')) byId('statsSectionSubtitle').textContent = t('statsSectionSubtitle');
             if (byId('weaponsSectionTitle')) byId('weaponsSectionTitle').textContent = t('weaponsSectionTitle');
             if (byId('weaponsSectionSubtitle')) byId('weaponsSectionSubtitle').innerHTML = t('weaponsSectionSubtitle');
+            if (byId('weaponSearchLabel')) byId('weaponSearchLabel').textContent = t('weaponSearchLabel');
+            if (byId('weaponSearchInput')) byId('weaponSearchInput').placeholder = t('weaponSearchPlaceholder');
+            if (byId('weaponSearchNoMatches')) byId('weaponSearchNoMatches').textContent = t('weaponSearchNoMatches');
+            if (byId('focusModeToggle')) byId('focusModeToggle').textContent = isInterfaceHidden ? t('showUiBtn') : t('hideUiBtn');
             if (byId('legendOwned')) byId('legendOwned').textContent = t('legendOwned');
             if (byId('legendEssence')) byId('legendEssence').textContent = t('legendEssence');
             if (byId('attributeGroupTitle')) byId('attributeGroupTitle').innerHTML = t('attributeGroupTitle');
@@ -190,6 +210,7 @@
             refreshLocalizedStatChipLabels();
             updateMainWeaponList();
             highlightMatchingWeapons();
+            applyWeaponSearchFilter();
 
             const resultsSection = document.getElementById('resultsSection');
             if (!resultsSection.classList.contains('visible')) {
@@ -318,6 +339,77 @@
             });
         }
 
+        function normalizeSearchText(value) {
+            return (value || '').toString().toLowerCase().trim();
+        }
+
+        function applyWeaponSearchFilter() {
+            const searchInput = document.getElementById('weaponSearchInput');
+            if (!searchInput) {
+                return;
+            }
+
+            const query = normalizeSearchText(searchInput.value);
+            let hasVisibleWeapons = false;
+
+            document.querySelectorAll('.rarity-section').forEach(section => {
+                const list = section.querySelector('.weapon-list');
+                const toggle = section.querySelector('.rarity-toggle');
+                let visibleInSection = 0;
+
+                section.querySelectorAll('.weapon-item').forEach(item => {
+                    const weaponKey = item.dataset.weapon || '';
+                    const localizedName = item.querySelector('.weapon-name')?.textContent || '';
+                    const matchesQuery = !query ||
+                        normalizeSearchText(weaponKey).includes(query) ||
+                        normalizeSearchText(localizedName).includes(query);
+
+                    item.style.display = matchesQuery ? '' : 'none';
+                    if (matchesQuery) {
+                        visibleInSection += 1;
+                        hasVisibleWeapons = true;
+                    }
+                });
+
+                section.style.display = visibleInSection > 0 ? '' : 'none';
+
+                if (query && visibleInSection > 0 && list) {
+                    list.classList.remove('collapsed');
+                    list.style.maxHeight = `${list.scrollHeight}px`;
+                    if (toggle) {
+                        toggle.classList.remove('collapsed');
+                    }
+                }
+            });
+
+            const noMatches = document.getElementById('weaponSearchNoMatches');
+            if (noMatches) {
+                noMatches.textContent = t('weaponSearchNoMatches');
+                noMatches.style.display = query && !hasVisibleWeapons ? 'block' : 'none';
+            }
+
+            if (!query) {
+                refreshWeaponListHeights();
+            }
+        }
+
+        function handleWeaponSearchInput() {
+            applyWeaponSearchFilter();
+        }
+
+        function setInterfaceHidden(hidden) {
+            isInterfaceHidden = hidden;
+            document.body.classList.toggle('interface-hidden', hidden);
+            const btn = document.getElementById('focusModeToggle');
+            if (btn) {
+                btn.textContent = hidden ? t('showUiBtn') : t('hideUiBtn');
+            }
+        }
+
+        function toggleInterfaceVisibility() {
+            setInterfaceHidden(!isInterfaceHidden);
+        }
+
         function updateWeaponTooltipAlignment(weaponElement) {
             const tooltip = weaponElement ? weaponElement.querySelector('.weapon-tooltip') : null;
             if (!tooltip) {
@@ -425,6 +517,7 @@
             requestAnimationFrame(refreshWeaponListHeights);
             updateMainWeaponList();
             highlightMatchingWeapons();
+            applyWeaponSearchFilter();
         }
 
         function toggleWeapon(weapon, element, interactionEvent) {
@@ -532,11 +625,12 @@
             }
 
             const container = document.getElementById('secondaryStats');
+            const wasSelected = state.selectedSecondaryStat === stat;
             container.querySelectorAll('.stat-chip').forEach(chip => {
                 chip.classList.remove('selected', 'auto-selected');
             });
-            
-            if (state.selectedSecondaryStat === stat) {
+
+            if (wasSelected) {
                 state.selectedSecondaryStat = null;
             } else {
                 state.selectedSecondaryStat = stat;
@@ -553,11 +647,12 @@
             }
 
             const container = document.getElementById('skillStats');
+            const wasSelected = state.selectedSkillStat === stat;
             container.querySelectorAll('.stat-chip').forEach(chip => {
                 chip.classList.remove('selected', 'auto-selected');
             });
-            
-            if (state.selectedSkillStat === stat) {
+
+            if (wasSelected) {
                 state.selectedSkillStat = null;
             } else {
                 state.selectedSkillStat = stat;
@@ -973,131 +1068,323 @@
                 return;
             }
 
-            const candidateWeapons = weaponsNeedingEssence.filter(weapon => {
-                const weaponData = weaponsData[weapon];
-                const secondaryMatch = !desiredStats.secondary ||
-                    weaponData.secondary_stats === desiredStats.secondary;
-                const skillMatch = !desiredStats.skill ||
-                    weaponData.skill_stats === desiredStats.skill;
-                return secondaryMatch && skillMatch;
-            });
-
-            if (candidateWeapons.length === 0) {
-                showNoResults(t('noResultsNoMatch'), { scrollToResults });
-                return;
+            const allAttributes = ["Agility Boost", "Strength Boost", "Will Boost", "Intellect Boost", "Main Attribute Boost"];
+            const preferredExtraStats = [];
+            if (desiredStats.secondary) {
+                preferredExtraStats.push({ type: 'secondary', value: desiredStats.secondary });
+            }
+            if (desiredStats.skill) {
+                preferredExtraStats.push({ type: 'skill', value: desiredStats.skill });
             }
 
-            const getGroupDesiredStats = (weaponPool) => {
-                const groupRecommendedStats = getRecommendedStatsForWeapons(weaponPool);
-                return {
-                    attribute: groupRecommendedStats.attribute,
-                    secondary: desiredStats.secondary,
-                    skill: desiredStats.skill
-                };
-            };
-
-            const applyDesiredStatsToLocationScore = (locationScore, groupDesiredStats) => {
-                const matchedAttributes = groupDesiredStats.attribute.filter(stat =>
-                    locationScore.location.attribute_stats.includes(stat)
+            const isPreferredExtraCandidate = (candidate) => {
+                return preferredExtraStats.some(
+                    preferred => preferred.type === candidate.type && preferred.value === candidate.value
                 );
-
-                const hasSecondaryStat = groupDesiredStats.secondary ?
-                    locationScore.location.secondary_stats.includes(groupDesiredStats.secondary) : false;
-                const hasSkillStat = groupDesiredStats.skill ?
-                    locationScore.location.skill_stats.includes(groupDesiredStats.skill) : false;
-                const extraStatMatchCount = (hasSecondaryStat ? 1 : 0) + (hasSkillStat ? 1 : 0);
-                const selectedExtraStatsCount = (groupDesiredStats.secondary ? 1 : 0) + (groupDesiredStats.skill ? 1 : 0);
-
-                return {
-                    ...locationScore,
-                    matchedAttributes,
-                    hasSecondaryStat,
-                    hasSkillStat,
-                    secondaryStat: groupDesiredStats.secondary,
-                    skillStat: groupDesiredStats.skill,
-                    statMatchCount: matchedAttributes.length + extraStatMatchCount,
-                    totalPossibleStats: groupDesiredStats.attribute.length + selectedExtraStatsCount
-                };
             };
 
-            const getLocationScoresForWeapons = (weaponPool, groupDesiredStats) => {
-                const locationScores = Object.entries(locationsData).map(([name, location]) => {
-                    const locationMatchingWeapons = weaponPool.filter(weapon => {
+            const getExtraCandidates = (weaponPool) => {
+                const secondaryCounts = {};
+                const skillCounts = {};
+
+                weaponPool.forEach(weapon => {
+                    const weaponData = weaponsData[weapon];
+                    secondaryCounts[weaponData.secondary_stats] = (secondaryCounts[weaponData.secondary_stats] || 0) + 1;
+                    skillCounts[weaponData.skill_stats] = (skillCounts[weaponData.skill_stats] || 0) + 1;
+                });
+
+                const candidates = [];
+                Object.entries(secondaryCounts).forEach(([value, count]) => {
+                    candidates.push({ type: 'secondary', value, count });
+                });
+                Object.entries(skillCounts).forEach(([value, count]) => {
+                    candidates.push({ type: 'skill', value, count });
+                });
+
+                candidates.sort((a, b) => {
+                    const aPreferred = isPreferredExtraCandidate(a) ? 1 : 0;
+                    const bPreferred = isPreferredExtraCandidate(b) ? 1 : 0;
+                    if (bPreferred !== aPreferred) {
+                        return bPreferred - aPreferred;
+                    }
+                    if (b.count !== a.count) {
+                        return b.count - a.count;
+                    }
+                    if (a.type !== b.type) {
+                        return a.type.localeCompare(b.type);
+                    }
+                    return a.value.localeCompare(b.value);
+                });
+
+                return candidates;
+            };
+
+            const getBestAttributesForLocation = (candidateWeapons, location) => {
+                const allowedAttributes = allAttributes.filter(attr => location.attribute_stats.includes(attr));
+                const attributeCounts = {};
+
+                allowedAttributes.forEach(attr => {
+                    attributeCounts[attr] = 0;
+                });
+
+                candidateWeapons.forEach(weapon => {
+                    const attr = weaponsData[weapon].attribute_stats;
+                    if (Object.prototype.hasOwnProperty.call(attributeCounts, attr)) {
+                        attributeCounts[attr] += 1;
+                    }
+                });
+
+                const sortedAttributes = [...allowedAttributes].sort((a, b) => {
+                    if (attributeCounts[b] !== attributeCounts[a]) {
+                        return attributeCounts[b] - attributeCounts[a];
+                    }
+                    const aPreferred = desiredStats.attribute.includes(a) ? 1 : 0;
+                    const bPreferred = desiredStats.attribute.includes(b) ? 1 : 0;
+                    if (bPreferred !== aPreferred) {
+                        return bPreferred - aPreferred;
+                    }
+                    return a.localeCompare(b);
+                });
+
+                const selectedAttributes = sortedAttributes.slice(0, Math.min(3, sortedAttributes.length));
+
+                if (selectedAttributes.length < 3) {
+                    const preferredFill = desiredStats.attribute.filter(attr =>
+                        allowedAttributes.includes(attr) && !selectedAttributes.includes(attr)
+                    );
+                    selectedAttributes.push(...preferredFill.slice(0, 3 - selectedAttributes.length));
+                }
+
+                if (selectedAttributes.length < 3) {
+                    const allowedFill = allowedAttributes.filter(attr => !selectedAttributes.includes(attr));
+                    selectedAttributes.push(...allowedFill.slice(0, 3 - selectedAttributes.length));
+                }
+
+                if (selectedAttributes.length < 3) {
+                    const globalFill = allAttributes.filter(attr => !selectedAttributes.includes(attr));
+                    selectedAttributes.push(...globalFill.slice(0, 3 - selectedAttributes.length));
+                }
+
+                return selectedAttributes.slice(0, 3);
+            };
+
+            const isBetterLocationChoice = (candidateResult, currentBest) => {
+                if (!currentBest) {
+                    return true;
+                }
+
+                const candidateScore = candidateResult.bestLocation;
+                const currentScore = currentBest.bestLocation;
+
+                if (candidateScore.matchedWeaponsCount !== currentScore.matchedWeaponsCount) {
+                    return candidateScore.matchedWeaponsCount > currentScore.matchedWeaponsCount;
+                }
+                if (candidateScore.weaponMatchPercentage !== currentScore.weaponMatchPercentage) {
+                    return candidateScore.weaponMatchPercentage > currentScore.weaponMatchPercentage;
+                }
+                if (candidateScore.statMatchCount !== currentScore.statMatchCount) {
+                    return candidateScore.statMatchCount > currentScore.statMatchCount;
+                }
+                return candidateScore.name.localeCompare(currentScore.name) < 0;
+            };
+
+            const evaluateExtraCandidate = (weaponPool, extraCandidate) => {
+                const candidateWeapons = weaponPool.filter(weapon => {
+                    const weaponData = weaponsData[weapon];
+                    return extraCandidate.type === 'secondary'
+                        ? weaponData.secondary_stats === extraCandidate.value
+                        : weaponData.skill_stats === extraCandidate.value;
+                });
+
+                if (candidateWeapons.length === 0) {
+                    return null;
+                }
+
+                let bestResult = null;
+
+                Object.entries(locationsData).forEach(([locationName, location]) => {
+                    const hasExtraStat = extraCandidate.type === 'secondary'
+                        ? location.secondary_stats.includes(extraCandidate.value)
+                        : location.skill_stats.includes(extraCandidate.value);
+
+                    if (!hasExtraStat) {
+                        return;
+                    }
+
+                    const locationCompatibleWeapons = candidateWeapons.filter(weapon => {
                         const weaponData = weaponsData[weapon];
-                        const hasAttribute = location.attribute_stats.includes(weaponData.attribute_stats);
-                        const hasSecondary = location.secondary_stats.includes(weaponData.secondary_stats);
-                        const hasSkill = location.skill_stats.includes(weaponData.skill_stats);
-                        return hasAttribute && hasSecondary && hasSkill;
+                        return location.attribute_stats.includes(weaponData.attribute_stats) &&
+                            location.secondary_stats.includes(weaponData.secondary_stats) &&
+                            location.skill_stats.includes(weaponData.skill_stats);
                     });
 
-                    const matchedAttributes = groupDesiredStats.attribute.filter(stat =>
-                        location.attribute_stats.includes(stat)
+                    if (locationCompatibleWeapons.length === 0) {
+                        return;
+                    }
+
+                    const selectedAttributes = getBestAttributesForLocation(locationCompatibleWeapons, location);
+                    const locationMatchingWeapons = locationCompatibleWeapons.filter(weapon =>
+                        selectedAttributes.includes(weaponsData[weapon].attribute_stats)
                     );
 
-                    const hasSecondaryStat = groupDesiredStats.secondary ?
-                        location.secondary_stats.includes(groupDesiredStats.secondary) : false;
-                    const hasSkillStat = groupDesiredStats.skill ?
-                        location.skill_stats.includes(groupDesiredStats.skill) : false;
-                    const extraStatMatchCount = (hasSecondaryStat ? 1 : 0) + (hasSkillStat ? 1 : 0);
-                    const selectedExtraStatsCount = (groupDesiredStats.secondary ? 1 : 0) + (groupDesiredStats.skill ? 1 : 0);
+                    if (locationMatchingWeapons.length === 0) {
+                        return;
+                    }
 
+                    const desiredGroupStats = {
+                        attribute: selectedAttributes,
+                        secondary: extraCandidate.type === 'secondary' ? extraCandidate.value : null,
+                        skill: extraCandidate.type === 'skill' ? extraCandidate.value : null
+                    };
+
+                    const matchedAttributes = desiredGroupStats.attribute.filter(stat =>
+                        location.attribute_stats.includes(stat)
+                    );
+                    const hasSecondaryStat = desiredGroupStats.secondary
+                        ? location.secondary_stats.includes(desiredGroupStats.secondary)
+                        : false;
+                    const hasSkillStat = desiredGroupStats.skill
+                        ? location.skill_stats.includes(desiredGroupStats.skill)
+                        : false;
+                    const extraStatMatchCount = (hasSecondaryStat ? 1 : 0) + (hasSkillStat ? 1 : 0);
+                    const totalWeaponsCount = candidateWeapons.length;
                     const matchedWeaponsCount = locationMatchingWeapons.length;
-                    const totalWeaponsCount = weaponPool.length;
                     const weaponMatchPercentage = totalWeaponsCount > 0
                         ? Math.round((matchedWeaponsCount / totalWeaponsCount) * 100)
                         : 0;
 
-                    return {
-                        name,
+                    const locationScore = {
+                        name: locationName,
                         matchedAttributes,
                         hasSecondaryStat,
                         hasSkillStat,
-                        secondaryStat: groupDesiredStats.secondary,
-                        skillStat: groupDesiredStats.skill,
+                        secondaryStat: desiredGroupStats.secondary,
+                        skillStat: desiredGroupStats.skill,
                         statMatchCount: matchedAttributes.length + extraStatMatchCount,
-                        totalPossibleStats: groupDesiredStats.attribute.length + selectedExtraStatsCount,
+                        totalPossibleStats: desiredGroupStats.attribute.length + 1,
                         weaponMatchPercentage,
                         matchedWeaponsCount,
                         totalWeaponsCount,
                         locationMatchingWeapons,
                         location
                     };
+
+                    const candidateResult = {
+                        weapons: locationMatchingWeapons,
+                        desiredStats: desiredGroupStats,
+                        bestLocation: locationScore,
+                        extraCandidate,
+                        candidatePoolSize: candidateWeapons.length
+                    };
+
+                    if (isBetterLocationChoice(candidateResult, bestResult)) {
+                        bestResult = candidateResult;
+                    }
                 });
 
-                locationScores.sort((a, b) => {
-                    if (b.matchedWeaponsCount !== a.matchedWeaponsCount) {
-                        return b.matchedWeaponsCount - a.matchedWeaponsCount;
-                    }
-                    if (b.statMatchCount !== a.statMatchCount) {
-                        return b.statMatchCount - a.statMatchCount;
-                    }
-                    return b.weaponMatchPercentage - a.weaponMatchPercentage;
-                });
+                return bestResult;
+            };
 
-                return locationScores;
+            const isBetterGroupChoice = (candidateResult, currentBest) => {
+                if (!currentBest) {
+                    return true;
+                }
+
+                const candidateScore = candidateResult.bestLocation;
+                const currentScore = currentBest.bestLocation;
+
+                if (candidateScore.matchedWeaponsCount !== currentScore.matchedWeaponsCount) {
+                    return candidateScore.matchedWeaponsCount > currentScore.matchedWeaponsCount;
+                }
+                if (candidateResult.candidatePoolSize !== currentBest.candidatePoolSize) {
+                    return candidateResult.candidatePoolSize > currentBest.candidatePoolSize;
+                }
+
+                const candidatePreferred = isPreferredExtraCandidate(candidateResult.extraCandidate) ? 1 : 0;
+                const currentPreferred = isPreferredExtraCandidate(currentBest.extraCandidate) ? 1 : 0;
+                if (candidatePreferred !== currentPreferred) {
+                    return candidatePreferred > currentPreferred;
+                }
+
+                if (candidateScore.weaponMatchPercentage !== currentScore.weaponMatchPercentage) {
+                    return candidateScore.weaponMatchPercentage > currentScore.weaponMatchPercentage;
+                }
+                if (candidateScore.statMatchCount !== currentScore.statMatchCount) {
+                    return candidateScore.statMatchCount > currentScore.statMatchCount;
+                }
+                return candidateScore.name.localeCompare(currentScore.name) < 0;
             };
 
             const farmPlan = [];
-            let remainingCandidateWeapons = [...candidateWeapons];
+            let remainingCandidateWeapons = [...weaponsNeedingEssence];
 
             while (remainingCandidateWeapons.length > 0) {
-                const rankingDesiredStats = getGroupDesiredStats(remainingCandidateWeapons);
-                const locationScores = getLocationScoresForWeapons(remainingCandidateWeapons, rankingDesiredStats);
-                const bestLocation = locationScores[0];
+                const extraCandidates = getExtraCandidates(remainingCandidateWeapons);
+                let bestGroup = null;
 
-                if (!bestLocation || bestLocation.matchedWeaponsCount === 0) {
-                    showNoResults(t('noResultsNoLocation', { weapons: remainingCandidateWeapons.map(getLocalizedWeaponName).join(', ') }), { scrollToResults });
-                    return;
+                extraCandidates.forEach(extraCandidate => {
+                    const evaluatedCandidate = evaluateExtraCandidate(remainingCandidateWeapons, extraCandidate);
+                    if (!evaluatedCandidate) {
+                        return;
+                    }
+                    if (isBetterGroupChoice(evaluatedCandidate, bestGroup)) {
+                        bestGroup = evaluatedCandidate;
+                    }
+                });
+
+                if (!bestGroup || bestGroup.weapons.length === 0) {
+                    const fallbackWeapon = remainingCandidateWeapons[0];
+                    const fallbackData = weaponsData[fallbackWeapon];
+                    const fallbackLocationEntry = Object.entries(locationsData).find(([, location]) => {
+                        return location.attribute_stats.includes(fallbackData.attribute_stats) &&
+                            location.secondary_stats.includes(fallbackData.secondary_stats) &&
+                            location.skill_stats.includes(fallbackData.skill_stats);
+                    });
+
+                    if (!fallbackLocationEntry) {
+                        showNoResults(t('noResultsNoLocation', { weapons: remainingCandidateWeapons.map(getLocalizedWeaponName).join(', ') }), { scrollToResults });
+                        return;
+                    }
+
+                    const [fallbackLocationName, fallbackLocation] = fallbackLocationEntry;
+                    const fallbackAttributes = getBestAttributesForLocation([fallbackWeapon], fallbackLocation);
+                    const fallbackDesiredStats = {
+                        attribute: fallbackAttributes,
+                        secondary: fallbackData.secondary_stats,
+                        skill: null
+                    };
+                    const fallbackBest = {
+                        name: fallbackLocationName,
+                        matchedAttributes: fallbackAttributes.filter(stat => fallbackLocation.attribute_stats.includes(stat)),
+                        hasSecondaryStat: true,
+                        hasSkillStat: false,
+                        secondaryStat: fallbackDesiredStats.secondary,
+                        skillStat: fallbackDesiredStats.skill,
+                        statMatchCount: fallbackAttributes.length + 1,
+                        totalPossibleStats: fallbackAttributes.length + 1,
+                        weaponMatchPercentage: 100,
+                        matchedWeaponsCount: 1,
+                        totalWeaponsCount: 1,
+                        locationMatchingWeapons: [fallbackWeapon],
+                        location: fallbackLocation
+                    };
+
+                    farmPlan.push({
+                        weapons: [fallbackWeapon],
+                        desiredStats: fallbackDesiredStats,
+                        bestLocation: fallbackBest
+                    });
+
+                    remainingCandidateWeapons = remainingCandidateWeapons.filter(weapon => weapon !== fallbackWeapon);
+                    continue;
                 }
 
-                const groupWeapons = [...bestLocation.locationMatchingWeapons];
-                const groupDesiredStats = getGroupDesiredStats(groupWeapons);
-                const groupBestLocation = applyDesiredStatsToLocationScore(bestLocation, groupDesiredStats);
+                const groupWeapons = [...bestGroup.weapons];
 
                 farmPlan.push({
                     weapons: groupWeapons,
-                    desiredStats: groupDesiredStats,
-                    bestLocation: groupBestLocation
+                    desiredStats: bestGroup.desiredStats,
+                    bestLocation: bestGroup.bestLocation
                 });
 
                 remainingCandidateWeapons = remainingCandidateWeapons.filter(
@@ -1105,27 +1392,15 @@
                 );
             }
 
-            const skippedWeapons = weaponsNeedingEssence.filter(
-                weapon => !candidateWeapons.includes(weapon)
-            );
-
-            displayResults(farmPlan, skippedWeapons, { scrollToResults });
+            displayResults(farmPlan, { scrollToResults });
         }
 
-        function displayResults(farmPlan, skippedWeapons = [], options = {}) {
+        function displayResults(farmPlan, options = {}) {
             const scrollToResults = options.scrollToResults !== false;
             const resultsSection = document.getElementById('resultsSection');
             const resultsContainer = document.getElementById('resultsContainer');
 
             resultsContainer.innerHTML = '';
-
-            if (skippedWeapons.length > 0) {
-                const skippedInfo = document.createElement('div');
-                skippedInfo.className = 'section-subtitle';
-                skippedInfo.style.marginBottom = '1rem';
-                skippedInfo.innerHTML = `<strong>${t('skippedWeapons')}</strong> ${skippedWeapons.map(getLocalizedWeaponName).join(', ')}`;
-                resultsContainer.appendChild(skippedInfo);
-            }
 
             farmPlan.forEach((step, index) => {
                 const section = document.createElement('div');
@@ -1212,7 +1487,7 @@
                 card.innerHTML = `
                     <div class="location-spotlight ${index === 0 ? 'best' : ''}">
                         <span class="location-spotlight-label">${index === 0 ? t('locationSpotlightBest') : t('locationSpotlightGroup')}</span>
-                        <span class="location-spotlight-name">${loc.name}</span>
+                        <span class="location-spotlight-name">${getLocalizedLocationName(loc.name)}</span>
                     </div>
                     <div class="location-header">
                         <span class="location-name">${t('coverageTitle')}</span>
@@ -1397,7 +1672,7 @@
                 window.addEventListener('resize', refreshWeaponListHeights);
                 hasInitializedUI = true;
             } catch (error) {
-                showNoResults(`❌ ${error.message}`);
+                showNoResults(error.message);
                 document.getElementById('calculateBtn').disabled = true;
                 console.error(error);
             }

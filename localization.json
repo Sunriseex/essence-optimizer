@@ -360,5 +360,27 @@
       "en": "Wild Wanderer",
       "ru": "Дикий странник"
     }
+  },
+  "locations": {
+    "Origin Lodespring": {
+      "en": "Origin Lodespring",
+      "ru": "Первое месторождение"
+    },
+    "Power Plateau": {
+      "en": "Power Plateau",
+      "ru": "Плато энергии"
+    },
+    "Originium Science Park": {
+      "en": "Originium Science Park",
+      "ru": "Центр исследования ориджиния"
+    },
+    "The Hub": {
+      "en": "The Hub",
+      "ru": "Центр"
+    },
+    "Wuling City": {
+      "en": "Wuling City",
+      "ru": "Улин"
+    }
   }
 }
