@@ -12,6 +12,10 @@
             --color-border: rgba(148, 163, 184, 0.2);
         }
 
+        html:lang(ru) {
+            font-size: 93.75%;
+        }
+
         * {
             margin: 0;
             padding: 0;
