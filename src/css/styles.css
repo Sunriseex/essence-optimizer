@@ -488,6 +488,13 @@
             background-color: rgba(56, 189, 248, 0.15);
         }
 
+        .weapon-item.essence-check-match,
+        .weapon-item.selected.essence-check-match {
+            border-color: #a855f7;
+            background-color: rgba(168, 85, 247, 0.2);
+            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.36);
+        }
+
         .weapon-item.has-essence {
             border-color: var(--color-success);
             background-color: rgba(34, 197, 94, 0.15);
