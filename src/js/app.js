@@ -29,7 +29,7 @@
                 languageRu: 'Русский',
                 languageEn: 'English',
                 statsSectionTitle: 'Желаемые статы',
-                statsSectionSubtitle: 'Выберите статы для эссенции оружия, которое нужно фармить. Secondary и Skill можно выбрать одновременно вручную.',
+                statsSectionSubtitle: 'Блок используется для проверки выбитой эссенции. Подходящее оружие подсвечивается фиолетовым (кроме уже отфармленного).',
                 weaponsSectionTitle: 'Оружие',
                 weaponsSectionSubtitle: '<strong>Левый клик:</strong> Отметить оружие, для которого нужно фармить эссенцию (синий)<br><strong>Правый клик:</strong> Отметить оружие с уже готовой эссенцией (зелёный, не будет учитываться в фарме)',
                 weaponSearchLabel: 'Поиск оружия',
@@ -83,7 +83,7 @@
                 languageRu: 'Russian',
                 languageEn: 'English',
                 statsSectionTitle: 'Desired Stats',
-                statsSectionSubtitle: 'Choose essence stats for weapons you want to farm. Secondary and Skill can be selected together manually.',
+                statsSectionSubtitle: 'This block is used to verify dropped essence. Matching weapons are highlighted in purple (except already farmed).',
                 weaponsSectionTitle: 'Weapons',
                 weaponsSectionSubtitle: '<strong>Left click:</strong> Mark weapon for essence farming (blue)<br><strong>Right click:</strong> Mark weapon as already farmed (green, excluded from farming)',
                 weaponSearchLabel: 'Weapon Search',
@@ -311,8 +311,6 @@
                     showNoResults(t('noResultsAllFarmed'), { scrollToResults: false });
                     return;
                 }
-
-                showNoResults(t('noResultsInvalidSelection'), { scrollToResults: false });
                 return;
             }
 
@@ -806,21 +804,17 @@
                     return;
                 }
                 const weaponData = weaponsData[weaponName];
-                
-                // Remove previous highlight
+                item.classList.remove('essence-check-match');
                 item.style.boxShadow = '';
 
-                // If no stats are selected, keep list unhighlighted.
                 if (!hasAnySelectedStat) {
                     return;
                 }
-                
-                // Don't highlight if weapon is already selected
-                if (state.ownedWeapons.has(weaponName)) {
+
+                if (state.essenceReady.has(weaponName)) {
                     return;
                 }
-                
-                // Check if weapon matches selected stats
+
                 const attributeMatch = state.selectedAttributeStats.size === 0 || 
                     state.selectedAttributeStats.has(weaponData.attribute_stats);
                 
@@ -831,7 +825,7 @@
                     weaponData.skill_stats === state.selectedSkillStat;
                 
                 if (attributeMatch && secondaryMatch && skillMatch) {
-                    item.style.boxShadow = '0 0 0 3px var(--color-warning)';
+                    item.classList.add('essence-check-match');
                 }
             });
         }
@@ -886,155 +880,12 @@
         }
 
         function resetWeaponSelectionsAfterStatClear() {
-            const noSelectedStats = state.selectedAttributeStats.size === 0 &&
-                state.selectedSecondaryStat === null &&
-                state.selectedSkillStat === null;
-            if (!noSelectedStats) {
-                return;
-            }
-
-            document.querySelectorAll('.weapon-item').forEach(item => {
-                item.style.boxShadow = '';
-            });
-
-            if (state.ownedWeapons.size === 0 && state.essenceReady.size === 0) {
-                return;
-            }
-
-            // Keep "essence ready" weapons (green) and clear only farm targets (blue).
-            Array.from(state.ownedWeapons).forEach(weapon => {
-                if (!state.essenceReady.has(weapon)) {
-                    state.ownedWeapons.delete(weapon);
-                }
-            });
-            persistWeaponSelections();
-
-            updateMainWeaponList();
-
-            document.getElementById('resultsSection').classList.remove('visible');
-            updateCalculateButton();
+            // Desired stats are check-only now; clearing stats must not reset farm selections.
         }
 
         function autoSelectStats() {
             persistWeaponSelections();
-
-            const weaponsNeedingEssence = Array.from(state.ownedWeapons)
-                .filter(weapon => !state.essenceReady.has(weapon));
-
-            state.selectedAttributeStats.clear();
-            state.selectedSecondaryStat = null;
-            state.selectedSkillStat = null;
-
-            document.querySelectorAll('.stat-chip').forEach(chip => {
-                chip.classList.remove('selected', 'auto-selected', 'disabled');
-            });
-
-            // Clear weapon highlights
-            document.querySelectorAll('.weapon-item').forEach(item => {
-                item.style.boxShadow = '';
-            });
-
-            if (weaponsNeedingEssence.length === 0) {
-                updateCalculateButton();
-                refreshResultsAfterSelectionChange();
-                return;
-            }
-
-            const statCounts = {
-                attribute: {},
-                secondary: {},
-                skill: {}
-            };
-
-            weaponsNeedingEssence.forEach(weapon => {
-                const weaponData = weaponsData[weapon];
-                statCounts.attribute[weaponData.attribute_stats] = (statCounts.attribute[weaponData.attribute_stats] || 0) + 1;
-                statCounts.secondary[weaponData.secondary_stats] = (statCounts.secondary[weaponData.secondary_stats] || 0) + 1;
-                statCounts.skill[weaponData.skill_stats] = (statCounts.skill[weaponData.skill_stats] || 0) + 1;
-            });
-
-            const sortedAttributes = Object.entries(statCounts.attribute)
-                .sort((a, b) => b[1] - a[1])
-                .map(([stat]) => stat);
-
-            const allAttributes = ["Agility Boost", "Strength Boost", "Will Boost", "Intellect Boost", "Main Attribute Boost"];
-            const selectedAttributes = sortedAttributes.slice(0, Math.min(3, sortedAttributes.length));
-            
-            if (selectedAttributes.length < 3) {
-                const remaining = allAttributes.filter(attr => !selectedAttributes.includes(attr));
-                selectedAttributes.push(...remaining.slice(0, 3 - selectedAttributes.length));
-            }
-
-            selectedAttributes.forEach(stat => {
-                state.selectedAttributeStats.add(stat);
-                const chip = Array.from(document.getElementById('attributeStats').children)
-                    .find(el => el.dataset.statKey === stat);
-                if (chip) chip.classList.add('auto-selected');
-            });
-
-            const uniqueSecondaryStats = new Set(Object.keys(statCounts.secondary));
-            const uniqueSkillStats = new Set(Object.keys(statCounts.skill));
-
-            if (uniqueSecondaryStats.size === 1 && uniqueSkillStats.size > 1) {
-                const onlySecondaryStat = Array.from(uniqueSecondaryStats)[0];
-                state.selectedSecondaryStat = onlySecondaryStat;
-                const chip = Array.from(document.getElementById('secondaryStats').children)
-                    .find(el => el.dataset.statKey === onlySecondaryStat);
-                if (chip) {
-                    chip.classList.add('auto-selected');
-                }
-            } else if (uniqueSkillStats.size === 1 && uniqueSecondaryStats.size > 1) {
-                const onlySkillStat = Array.from(uniqueSkillStats)[0];
-                state.selectedSkillStat = onlySkillStat;
-                const chip = Array.from(document.getElementById('skillStats').children)
-                    .find(el => el.dataset.statKey === onlySkillStat);
-                if (chip) {
-                    chip.classList.add('auto-selected');
-                }
-            } else if (uniqueSecondaryStats.size === 1 && uniqueSkillStats.size === 1) {
-                const onlySecondaryStat = Array.from(uniqueSecondaryStats)[0];
-                state.selectedSecondaryStat = onlySecondaryStat;
-                const chip = Array.from(document.getElementById('secondaryStats').children)
-                    .find(el => el.dataset.statKey === onlySecondaryStat);
-                if (chip) {
-                    chip.classList.add('auto-selected');
-                }
-            } else {
-                const sortedSecondaryStats = Object.entries(statCounts.secondary)
-                    .sort((a, b) => b[1] - a[1]);
-                const sortedSkillStats = Object.entries(statCounts.skill)
-                    .sort((a, b) => b[1] - a[1]);
-
-                const topSecondaryCount = sortedSecondaryStats[0] ? sortedSecondaryStats[0][1] : 0;
-                const topSkillCount = sortedSkillStats[0] ? sortedSkillStats[0][1] : 0;
-
-                if (topSkillCount > topSecondaryCount) {
-                    const topSkillStat = sortedSkillStats[0];
-                    state.selectedSkillStat = topSkillStat[0];
-                    const chip = Array.from(document.getElementById('skillStats').children)
-                        .find(el => el.dataset.statKey === topSkillStat[0]);
-                    if (chip) {
-                        chip.classList.add('auto-selected');
-                    }
-                } else if (topSecondaryCount > topSkillCount) {
-                    const topSecondaryStat = sortedSecondaryStats[0];
-                    state.selectedSecondaryStat = topSecondaryStat[0];
-                    const chip = Array.from(document.getElementById('secondaryStats').children)
-                        .find(el => el.dataset.statKey === topSecondaryStat[0]);
-                    if (chip) {
-                        chip.classList.add('auto-selected');
-                    }
-                } else {
-                    const topSecondaryStat = sortedSecondaryStats[0];
-                    state.selectedSecondaryStat = topSecondaryStat[0];
-                    const chip = Array.from(document.getElementById('secondaryStats').children)
-                        .find(el => el.dataset.statKey === topSecondaryStat[0]);
-                    if (chip) {
-                        chip.classList.add('auto-selected');
-                    }
-                }
-            }
-
+            highlightMatchingWeapons();
             updateCalculateButton();
             refreshResultsAfterSelectionChange();
         }
@@ -1043,10 +894,7 @@
             const btn = document.getElementById('calculateBtn');
             const weaponsNeedingEssence = Array.from(state.ownedWeapons)
                 .filter(weapon => !state.essenceReady.has(weapon));
-            const hasStatPairSelection = state.selectedSecondaryStat !== null || state.selectedSkillStat !== null;
-            const hasValidSelection = state.selectedAttributeStats.size === 3 && hasStatPairSelection;
-
-            btn.disabled = weaponsNeedingEssence.length === 0 || !hasValidSelection;
+            btn.disabled = weaponsNeedingEssence.length === 0;
         }
 
         function getRecommendedStatsForWeapons(targetWeapons) {
@@ -1189,18 +1037,9 @@
             }
 
             const desiredStats = {
-                attribute: Array.from(state.selectedAttributeStats),
-                secondary: state.selectedSecondaryStat,
-                skill: state.selectedSkillStat
+                // Farm calculation should stay independent from manual essence-check stats.
+                ...getRecommendedStatsForWeapons(weaponsNeedingEssence)
             };
-
-            const hasValidSelection = desiredStats.attribute.length === 3 &&
-                (desiredStats.secondary || desiredStats.skill);
-
-            if (!hasValidSelection) {
-                showNoResults(t('noResultsInvalidSelection'), { scrollToResults });
-                return;
-            }
 
             const allAttributes = ["Agility Boost", "Strength Boost", "Will Boost", "Intellect Boost", "Main Attribute Boost"];
             const preferredExtraStats = [];
@@ -1728,7 +1567,7 @@
             persistWeaponSelections();
 
             document.querySelectorAll('.weapon-item').forEach(el => {
-                el.classList.remove('selected', 'has-essence');
+                el.classList.remove('selected', 'has-essence', 'essence-check-match');
                 el.style.boxShadow = '';
             });
 
