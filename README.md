@@ -47,7 +47,7 @@ The project is published via **GitHub Pages**.
 
 For manual essence verification:
 
-1. Set stats in `Desired Stats`.
+1. Set stats in the `Essence Check` panel.
 2. Check highlighted matching weapons.
 
 ### Data Format
@@ -140,7 +140,7 @@ This project is licensed under the MIT License. See `LICENSE` for details.
 
 Для ручной проверки эссенции:
 
-1. Настройте статы в блоке `Desired Stats` / `Желаемые статы`.
+1. Настройте статы в блоке `Essence Check` / `Проверка эссенции`.
 2. Проверьте выделенные совпадения оружия.
 
 ### Формат данных
