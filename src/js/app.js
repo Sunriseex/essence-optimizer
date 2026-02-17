@@ -734,6 +734,17 @@
             return `assets/weapons/${normalizedName}.png`;
         }
 
+        function bindImageErrorFallback(imageElement) {
+            if (!imageElement || imageElement.dataset.errorFallbackBound === '1') {
+                return;
+            }
+
+            imageElement.dataset.errorFallbackBound = '1';
+            imageElement.addEventListener('error', () => {
+                imageElement.classList.add('image-fallback-hidden');
+            });
+        }
+
         function initWeapons() {
             const weaponList = document.getElementById('weaponList');
             const weaponsByRarity = {6: [], 5: [], 4: []};
@@ -770,7 +781,7 @@
                     const iconPath = getWeaponIconPath(weapon);
                     const localizedWeaponName = getLocalizedWeaponName(weapon);
                     div.innerHTML = `
-                        <img src="${iconPath}" alt="${localizedWeaponName}" class="weapon-icon" onerror="this.style.display='none'">
+                        <img src="${iconPath}" alt="${localizedWeaponName}" class="weapon-icon">
                         <span class="weapon-name">${localizedWeaponName}</span>
                         <div class="weapon-tooltip">
                             <div class="tooltip-stat">
@@ -787,6 +798,7 @@
                             </div>
                         </div>
                     `;
+                    bindImageErrorFallback(div.querySelector('.weapon-icon'));
                     div.onclick = (e) => toggleWeapon(weapon, div, e);
                     div.oncontextmenu = (e) => {
                         e.preventDefault();
@@ -1474,9 +1486,10 @@
                     step.desiredStats.secondary ? getLocalizedStatName('secondary', step.desiredStats.secondary) : null,
                     step.desiredStats.skill ? getLocalizedStatName('skill', step.desiredStats.skill) : null
                 ].filter(Boolean).join(', ');
+                const groupTitleClass = index === 0 ? 'result-group-title best' : 'result-group-title alt';
 
                 section.innerHTML = `
-                    <h3 style="margin: 18px 0 8px 0; color: ${index === 0 ? 'var(--color-success)' : 'var(--color-warning)'};">
+                    <h3 class="${groupTitleClass}">
                         ${index === 0 ? t('groupBest') : t('groupN', { index: index + 1 })} (${t('groupStats', { stats: localizedGroupStats })})
                     </h3>
                 `;
@@ -1489,9 +1502,9 @@
 
                 if (step.weapons && step.weapons.length > 0) {
                     statsHTML += `
-                        <div style="margin-bottom: 12px; padding: 8px; background: rgba(56, 189, 248, 0.1); border-radius: 6px;">
-                            <strong style="color: var(--color-accent);">${t('weaponsInGroup', { count: step.weapons.length })}</strong>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 8px;">
+                        <div class="result-weapons-box">
+                            <strong class="result-weapons-label">${t('weaponsInGroup', { count: step.weapons.length })}</strong>
+                            <div class="result-weapons-grid">
                                 ${step.weapons.map(weapon => {
                                     const iconPath = getWeaponIconPath(weapon);
                                     const localizedWeaponName = getLocalizedWeaponName(weapon);
@@ -1500,8 +1513,8 @@
                                     const classes = hasEssence ? 'has-essence' : (isSelected ? 'selected' : '');
                                     return `
                                         <div class="result-weapon-item ${classes}" data-weapon="${weapon}">
-                                            <img src="${iconPath}" alt="${localizedWeaponName}" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.style.display='none'">
-                                            <span style="font-size: 0.75rem; text-align: center; line-height: 1.2;">${localizedWeaponName}</span>
+                                            <img src="${iconPath}" alt="${localizedWeaponName}" class="result-weapon-icon">
+                                            <span class="result-weapon-name">${localizedWeaponName}</span>
                                         </div>
                                     `;
                                 }).join('')}
@@ -1554,7 +1567,7 @@
                     </div>
                     <div class="location-header">
                         <span class="location-name">${t('coverageTitle')}</span>
-                        <div style="display: flex; gap: 8px; align-items: center;">
+                        <div class="location-score-list">
                             <span class="match-score">${t('scoreWeapons', { percentage: loc.weaponMatchPercentage, matched: loc.matchedWeaponsCount, total: loc.totalWeaponsCount })}</span>
                             <span class="match-score">${t('scoreStats', { matched: loc.statMatchCount, total: loc.totalPossibleStats })}</span>
                         </div>
@@ -1565,6 +1578,8 @@
                 section.appendChild(card);
                 resultsContainer.appendChild(section);
             });
+
+            document.querySelectorAll('.result-weapon-icon').forEach(bindImageErrorFallback);
 
             resultsSection.classList.add('visible');
             if (scrollToResults) {

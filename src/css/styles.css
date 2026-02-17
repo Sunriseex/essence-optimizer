@@ -460,6 +460,10 @@
             margin-bottom: 8px;
         }
 
+        .image-fallback-hidden {
+            display: none !important;
+        }
+
         .weapon-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -756,6 +760,36 @@
             animation: groupReveal 0.5s ease forwards;
         }
 
+        .result-group-title {
+            margin: 18px 0 8px 0;
+        }
+
+        .result-group-title.best {
+            color: var(--color-success);
+        }
+
+        .result-group-title.alt {
+            color: var(--color-warning);
+        }
+
+        .result-weapons-box {
+            margin-bottom: 12px;
+            padding: 8px;
+            background: rgba(56, 189, 248, 0.1);
+            border-radius: 6px;
+        }
+
+        .result-weapons-label {
+            color: var(--color-accent);
+        }
+
+        .result-weapons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+            margin-top: 8px;
+        }
+
         .location-spotlight {
             display: flex;
             flex-direction: column;
@@ -804,6 +838,12 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
+        }
+
+        .location-score-list {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
 
         .location-name {
@@ -938,6 +978,18 @@
             gap: 4px;
         }
 
+        .result-weapon-icon {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        .result-weapon-name {
+            font-size: 0.75rem;
+            text-align: center;
+            line-height: 1.2;
+        }
+
         .result-weapon-item:hover {
             border-color: var(--color-accent);
             background: rgba(56, 189, 248, 0.1);
@@ -1066,6 +1118,10 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 8px;
+            }
+
+            .location-score-list {
+                flex-wrap: wrap;
             }
 
             .location-spotlight-name {
