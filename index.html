@@ -77,7 +77,11 @@
                 </div>
                 <div class="weapon-search">
                     <label for="weaponSearchInput" id="weaponSearchLabel">Поиск оружия</label>
-                    <input type="search" id="weaponSearchInput" placeholder="Введите название оружия" oninput="handleWeaponSearchInput()">
+                    <div class="weapon-search-row">
+                        <input type="search" id="weaponSearchInput" placeholder="Введите название оружия" oninput="handleWeaponSearchInput()">
+                        <button type="button" class="search-clear-btn" id="clearWeaponSearchBtn" onclick="clearWeaponSearch()">Очистить</button>
+                    </div>
+                    <div class="weapon-search-hint" id="weaponSearchHint">Нажмите / чтобы перейти к поиску, Esc чтобы очистить</div>
                     <div class="weapon-search-empty" id="weaponSearchNoMatches" style="display: none;"></div>
                 </div>
 
@@ -90,6 +94,32 @@
                         <div class="legend-box essence"></div>
                         <span id="legendEssence">Эссенция готова</span>
                     </div>
+                </div>
+
+                <div class="weapon-summary" id="weaponSummary">
+                    <div class="weapon-summary-item">
+                        <span id="summarySelectedLabel">Выбрано</span>
+                        <strong id="summarySelectedCount">0</strong>
+                    </div>
+                    <div class="weapon-summary-item">
+                        <span id="summaryFarmedLabel">Отфармлено</span>
+                        <strong id="summaryFarmedCount">0</strong>
+                    </div>
+                    <div class="weapon-summary-item">
+                        <span id="summaryRemainingLabel">Осталось</span>
+                        <strong id="summaryRemainingCount">0</strong>
+                    </div>
+                    <div class="weapon-summary-item">
+                        <span id="summaryVisibleLabel">Видимо</span>
+                        <strong id="summaryVisibleCount">0</strong>
+                    </div>
+                </div>
+
+                <div class="weapon-quick-filters" id="weaponQuickFilters">
+                    <button type="button" class="weapon-filter-btn active" id="weaponFilterAll" data-filter="all" onclick="setWeaponQuickFilter('all')">Все</button>
+                    <button type="button" class="weapon-filter-btn" id="weaponFilterSelected" data-filter="selected" onclick="setWeaponQuickFilter('selected')">Выбранные</button>
+                    <button type="button" class="weapon-filter-btn" id="weaponFilterFarmed" data-filter="farmed" onclick="setWeaponQuickFilter('farmed')">Отфармленные</button>
+                    <button type="button" class="weapon-filter-btn" id="weaponFilterNeeded" data-filter="needed" onclick="setWeaponQuickFilter('needed')">Нужно фармить</button>
                 </div>
 
                 <div id="weaponList"></div>

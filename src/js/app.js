@@ -12,6 +12,9 @@
         };
         let hasInitializedUI = false;
         let currentLanguage = document.documentElement.lang === 'en' ? 'en' : 'ru';
+        let currentWeaponQuickFilter = 'all';
+        let visibleWeaponsCount = 0;
+        let hadWeaponSearchQuery = false;
         let isInterfaceHidden = false;
         const STORAGE_KEYS = {
             ownedWeapons: 'essenceOptimizer.ownedWeapons',
@@ -34,7 +37,17 @@
                 weaponsSectionSubtitle: '<strong>Левый клик:</strong> Отметить оружие, для которого нужно фармить эссенцию (синий)<br><strong>Правый клик:</strong> Отметить оружие с уже готовой эссенцией (зелёный, не будет учитываться в фарме)',
                 weaponSearchLabel: 'Поиск оружия',
                 weaponSearchPlaceholder: 'Введите название оружия',
+                clearWeaponSearchBtn: 'Очистить',
+                weaponSearchHint: 'Нажмите / чтобы перейти к поиску, Esc чтобы очистить',
                 weaponSearchNoMatches: 'По запросу ничего не найдено.',
+                summarySelectedLabel: 'Выбрано',
+                summaryFarmedLabel: 'Отфармлено',
+                summaryRemainingLabel: 'Осталось',
+                summaryVisibleLabel: 'Видимо',
+                weaponFilterAll: 'Все',
+                weaponFilterSelected: 'Выбранные',
+                weaponFilterFarmed: 'Отфармленные',
+                weaponFilterNeeded: 'Нужно фармить',
                 repoLinkLabel: 'Открыть GitHub репозиторий',
                 uidButtonLabel: 'UID: {uid}',
                 uidCopied: 'UID скопирован',
@@ -89,7 +102,17 @@
                 weaponsSectionSubtitle: '<strong>Left click:</strong> Mark weapon for essence farming (blue)<br><strong>Right click:</strong> Mark weapon as already farmed (green, excluded from farming)',
                 weaponSearchLabel: 'Weapon Search',
                 weaponSearchPlaceholder: 'Type weapon name',
+                clearWeaponSearchBtn: 'Clear',
+                weaponSearchHint: 'Press / to focus search, Esc to clear',
                 weaponSearchNoMatches: 'No weapons match your search.',
+                summarySelectedLabel: 'Selected',
+                summaryFarmedLabel: 'Farmed',
+                summaryRemainingLabel: 'Remaining',
+                summaryVisibleLabel: 'Visible',
+                weaponFilterAll: 'All',
+                weaponFilterSelected: 'Selected',
+                weaponFilterFarmed: 'Farmed',
+                weaponFilterNeeded: 'Need Farm',
                 repoLinkLabel: 'Open GitHub repository',
                 uidButtonLabel: 'UID: {uid}',
                 uidCopied: 'UID copied',
@@ -193,7 +216,17 @@
             if (byId('weaponsSectionSubtitle')) byId('weaponsSectionSubtitle').innerHTML = t('weaponsSectionSubtitle');
             if (byId('weaponSearchLabel')) byId('weaponSearchLabel').textContent = t('weaponSearchLabel');
             if (byId('weaponSearchInput')) byId('weaponSearchInput').placeholder = t('weaponSearchPlaceholder');
+            if (byId('clearWeaponSearchBtn')) byId('clearWeaponSearchBtn').textContent = t('clearWeaponSearchBtn');
+            if (byId('weaponSearchHint')) byId('weaponSearchHint').textContent = t('weaponSearchHint');
             if (byId('weaponSearchNoMatches')) byId('weaponSearchNoMatches').textContent = t('weaponSearchNoMatches');
+            if (byId('summarySelectedLabel')) byId('summarySelectedLabel').textContent = t('summarySelectedLabel');
+            if (byId('summaryFarmedLabel')) byId('summaryFarmedLabel').textContent = t('summaryFarmedLabel');
+            if (byId('summaryRemainingLabel')) byId('summaryRemainingLabel').textContent = t('summaryRemainingLabel');
+            if (byId('summaryVisibleLabel')) byId('summaryVisibleLabel').textContent = t('summaryVisibleLabel');
+            if (byId('weaponFilterAll')) byId('weaponFilterAll').textContent = t('weaponFilterAll');
+            if (byId('weaponFilterSelected')) byId('weaponFilterSelected').textContent = t('weaponFilterSelected');
+            if (byId('weaponFilterFarmed')) byId('weaponFilterFarmed').textContent = t('weaponFilterFarmed');
+            if (byId('weaponFilterNeeded')) byId('weaponFilterNeeded').textContent = t('weaponFilterNeeded');
             if (byId('repoLink')) {
                 byId('repoLink').setAttribute('href', REPOSITORY_URL);
                 byId('repoLink').setAttribute('aria-label', t('repoLinkLabel'));
@@ -212,6 +245,7 @@
             if (byId('resetWeaponsBtn')) byId('resetWeaponsBtn').textContent = t('resetWeaponsBtn');
             if (byId('resetStatsBtn')) byId('resetStatsBtn').textContent = t('resetStatsBtn');
             if (byId('resultsSectionTitle')) byId('resultsSectionTitle').textContent = t('resultsSectionTitle');
+            updateWeaponSummary();
         }
 
         function restoreUidButtonDefaultLabel() {
@@ -475,6 +509,75 @@
             return (value || '').toString().toLowerCase().trim();
         }
 
+        function restoreDefaultRarityExpansion() {
+            document.querySelectorAll('.rarity-section').forEach(section => {
+                const list = section.querySelector('.weapon-list');
+                const toggle = section.querySelector('.rarity-toggle');
+                if (!list || !toggle) {
+                    return;
+                }
+
+                const rarity = Number(list.dataset.rarity || 0);
+                const shouldBeExpanded = rarity === 6;
+
+                if (shouldBeExpanded) {
+                    list.classList.remove('collapsed');
+                    toggle.classList.remove('collapsed');
+                    list.style.maxHeight = `${list.scrollHeight}px`;
+                } else {
+                    list.classList.add('collapsed');
+                    toggle.classList.add('collapsed');
+                    list.style.maxHeight = '0px';
+                }
+            });
+        }
+
+        function weaponMatchesQuickFilter(weaponKey) {
+            if (currentWeaponQuickFilter === 'selected') {
+                return state.ownedWeapons.has(weaponKey);
+            }
+            if (currentWeaponQuickFilter === 'farmed') {
+                return state.essenceReady.has(weaponKey);
+            }
+            if (currentWeaponQuickFilter === 'needed') {
+                return state.ownedWeapons.has(weaponKey) && !state.essenceReady.has(weaponKey);
+            }
+            return true;
+        }
+
+        function syncWeaponQuickFilterButtons() {
+            document.querySelectorAll('.weapon-filter-btn').forEach(btn => {
+                const matches = btn.dataset.filter === currentWeaponQuickFilter;
+                btn.classList.toggle('active', matches);
+            });
+        }
+
+        function updateWeaponSummary() {
+            const selectedCount = state.ownedWeapons.size;
+            const farmedCount = state.essenceReady.size;
+            const remainingCount = Array.from(state.ownedWeapons)
+                .filter(weapon => !state.essenceReady.has(weapon))
+                .length;
+
+            const selectedEl = document.getElementById('summarySelectedCount');
+            const farmedEl = document.getElementById('summaryFarmedCount');
+            const remainingEl = document.getElementById('summaryRemainingCount');
+            const visibleEl = document.getElementById('summaryVisibleCount');
+
+            if (selectedEl) {
+                selectedEl.textContent = String(selectedCount);
+            }
+            if (farmedEl) {
+                farmedEl.textContent = String(farmedCount);
+            }
+            if (remainingEl) {
+                remainingEl.textContent = String(remainingCount);
+            }
+            if (visibleEl) {
+                visibleEl.textContent = String(visibleWeaponsCount);
+            }
+        }
+
         function applyWeaponSearchFilter() {
             const searchInput = document.getElementById('weaponSearchInput');
             if (!searchInput) {
@@ -482,7 +585,10 @@
             }
 
             const query = normalizeSearchText(searchInput.value);
+            const hadQueryBefore = hadWeaponSearchQuery;
+            hadWeaponSearchQuery = query.length > 0;
             let hasVisibleWeapons = false;
+            let visibleCount = 0;
 
             document.querySelectorAll('.rarity-section').forEach(section => {
                 const list = section.querySelector('.weapon-list');
@@ -492,13 +598,16 @@
                 section.querySelectorAll('.weapon-item').forEach(item => {
                     const weaponKey = item.dataset.weapon || '';
                     const localizedName = item.querySelector('.weapon-name')?.textContent || '';
-                    const matchesQuery = !query ||
+                    const matchesQueryText = !query ||
                         normalizeSearchText(weaponKey).includes(query) ||
                         normalizeSearchText(localizedName).includes(query);
+                    const matchesQuickFilter = weaponMatchesQuickFilter(weaponKey);
+                    const matchesQuery = matchesQueryText && matchesQuickFilter;
 
                     item.style.display = matchesQuery ? '' : 'none';
                     if (matchesQuery) {
                         visibleInSection += 1;
+                        visibleCount += 1;
                         hasVisibleWeapons = true;
                     }
                 });
@@ -517,16 +626,61 @@
             const noMatches = document.getElementById('weaponSearchNoMatches');
             if (noMatches) {
                 noMatches.textContent = t('weaponSearchNoMatches');
-                noMatches.style.display = query && !hasVisibleWeapons ? 'block' : 'none';
+                noMatches.style.display = !hasVisibleWeapons ? 'block' : 'none';
             }
 
+            visibleWeaponsCount = visibleCount;
+            updateWeaponSummary();
+            syncWeaponQuickFilterButtons();
+
             if (!query) {
+                if (hadQueryBefore) {
+                    restoreDefaultRarityExpansion();
+                }
                 refreshWeaponListHeights();
             }
         }
 
         function handleWeaponSearchInput() {
             applyWeaponSearchFilter();
+        }
+
+        function clearWeaponSearch() {
+            const searchInput = document.getElementById('weaponSearchInput');
+            if (!searchInput) {
+                return;
+            }
+            searchInput.value = '';
+            applyWeaponSearchFilter();
+        }
+
+        function setWeaponQuickFilter(filterName) {
+            if (!['all', 'selected', 'farmed', 'needed'].includes(filterName)) {
+                return;
+            }
+            currentWeaponQuickFilter = filterName;
+            applyWeaponSearchFilter();
+        }
+
+        function handleGlobalShortcuts(event) {
+            const activeTag = (document.activeElement?.tagName || '').toLowerCase();
+            const isTypingTarget = activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select' || document.activeElement?.isContentEditable;
+            const searchInput = document.getElementById('weaponSearchInput');
+
+            if (!searchInput) {
+                return;
+            }
+
+            if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey && !isTypingTarget) {
+                event.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+                return;
+            }
+
+            if (event.key === 'Escape' && document.activeElement === searchInput && searchInput.value) {
+                clearWeaponSearch();
+            }
         }
 
         function setInterfaceHidden(hidden) {
@@ -890,6 +1044,8 @@
             persistWeaponSelections();
             highlightMatchingWeapons();
             updateCalculateButton();
+            applyWeaponSearchFilter();
+            updateWeaponSummary();
             refreshResultsAfterSelectionChange();
         }
 
@@ -1473,6 +1629,8 @@
                     item.classList.remove('selected', 'has-essence');
                 }
             });
+            applyWeaponSearchFilter();
+            updateWeaponSummary();
         }
 
         function showNoResults(message, options = {}) {
@@ -1593,6 +1751,7 @@
                 initStats();
                 autoSelectStats();
                 window.addEventListener('resize', refreshWeaponListHeights);
+                window.addEventListener('keydown', handleGlobalShortcuts);
                 hasInitializedUI = true;
             } catch (error) {
                 showNoResults(error.message);
