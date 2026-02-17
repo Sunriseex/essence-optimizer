@@ -268,6 +268,12 @@
             margin-top: 16px;
         }
 
+        .weapons-actions {
+            display: grid;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
         .weapon-search {
             margin-bottom: 14px;
             display: grid;
@@ -580,6 +586,14 @@
             transition: all 0.2s;
             width: 100%;
             margin-top: 16px;
+        }
+
+        .stats-actions .btn,
+        .weapons-actions .btn,
+        .stats-actions .reset-btn,
+        .weapons-actions .reset-btn {
+            margin-top: 0;
+            margin-left: 0;
         }
 
         .btn:hover {

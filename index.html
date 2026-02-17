@@ -63,10 +63,9 @@
                 </div>
 
                 <div class="stats-actions">
-                    <button class="btn" id="calculateBtn" onclick="runCalculateWithLoading()" disabled>
-                        Найти лучшую локацию
+                    <button class="reset-btn panel-reset-btn" id="resetStatsBtn" onclick="resetEssenceCheckStats()">
+                        Сбросить статы проверки
                     </button>
-                    <button class="reset-btn panel-reset-btn" id="resetBtn" onclick="resetAll()">Сбросить всё</button>
                 </div>
             </div>
 
@@ -94,6 +93,15 @@
                 </div>
 
                 <div id="weaponList"></div>
+
+                <div class="weapons-actions">
+                    <button class="btn" id="calculateBtn" onclick="runCalculateWithLoading()" disabled>
+                        Найти лучшую локацию
+                    </button>
+                    <button class="reset-btn panel-reset-btn" id="resetWeaponsBtn" onclick="resetWeaponsSelection()">
+                        Сбросить выбранное оружие
+                    </button>
+                </div>
             </div>
         </div>
 
