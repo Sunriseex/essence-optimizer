@@ -305,6 +305,60 @@
             }
         }
 
+        function setupDomEventHandlers() {
+            const uidCopyBtn = document.getElementById('uidCopyBtn');
+            if (uidCopyBtn) {
+                uidCopyBtn.addEventListener('click', copyGameUid);
+            }
+
+            const languageSelect = document.getElementById('languageSelect');
+            if (languageSelect) {
+                languageSelect.addEventListener('change', (event) => {
+                    const selectedLanguage = event.target?.value;
+                    if (selectedLanguage === 'ru' || selectedLanguage === 'en') {
+                        setLanguage(selectedLanguage);
+                    }
+                });
+            }
+
+            const resetStatsBtn = document.getElementById('resetStatsBtn');
+            if (resetStatsBtn) {
+                resetStatsBtn.addEventListener('click', resetEssenceCheckStats);
+            }
+
+            const weaponSearchInput = document.getElementById('weaponSearchInput');
+            if (weaponSearchInput) {
+                weaponSearchInput.addEventListener('input', handleWeaponSearchInput);
+            }
+
+            const clearWeaponSearchBtn = document.getElementById('clearWeaponSearchBtn');
+            if (clearWeaponSearchBtn) {
+                clearWeaponSearchBtn.addEventListener('click', clearWeaponSearch);
+            }
+
+            document.querySelectorAll('.weapon-filter-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const filterName = button.dataset.filter || 'all';
+                    setWeaponQuickFilter(filterName);
+                });
+            });
+
+            const calculateBtn = document.getElementById('calculateBtn');
+            if (calculateBtn) {
+                calculateBtn.addEventListener('click', runCalculateWithLoading);
+            }
+
+            const resetWeaponsBtn = document.getElementById('resetWeaponsBtn');
+            if (resetWeaponsBtn) {
+                resetWeaponsBtn.addEventListener('click', resetWeaponsSelection);
+            }
+
+            const focusModeToggle = document.getElementById('focusModeToggle');
+            if (focusModeToggle) {
+                focusModeToggle.addEventListener('click', toggleInterfaceVisibility);
+            }
+        }
+
         function setLanguage(language) {
             if (language !== 'ru' && language !== 'en') {
                 return;
@@ -626,7 +680,7 @@
             const noMatches = document.getElementById('weaponSearchNoMatches');
             if (noMatches) {
                 noMatches.textContent = t('weaponSearchNoMatches');
-                noMatches.style.display = !hasVisibleWeapons ? 'block' : 'none';
+                noMatches.hidden = hasVisibleWeapons;
             }
 
             visibleWeaponsCount = visibleCount;
@@ -1759,6 +1813,7 @@
 
         async function initApp() {
             try {
+                setupDomEventHandlers();
                 await loadDataFromJson();
                 loadPersistedWeaponSelections();
                 setLanguage(currentLanguage);
