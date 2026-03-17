@@ -143,5 +143,33 @@
       "Medicant",
       "Twilight"
     ]
+  },
+  "Qingbo Stockade": {
+    "attribute_stats": [
+      "Agility Boost",
+      "Intellect Boost",
+      "Main Attribute Boost",
+      "Strength Boost",
+      "Will Boost"
+    ],
+    "secondary_stats": [
+      "Arts Intensity Boost",
+      "HP Boost",
+      "Cryo DMG Boost",
+      "Arts DMG Boost",
+      "Physical DMG Boost",
+      "Electric DMG Boost",
+      "Ultimate Gain Efficiency Boost",
+      "Treatment Efficiency Boost"
+    ],
+    "skill_stats": [
+      "Detonate",
+      "Medicant",
+      "Suppression",
+      "Twilight",
+      "Combative",
+      "Inspiring",
+      "Crusher"
+    ]
   }
 }

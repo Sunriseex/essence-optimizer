@@ -340,5 +340,23 @@
     "attribute_stats": "Intellect Boost",
     "secondary_stats": "Electric DMG Boost",
     "skill_stats": "Infliction"
+  },
+  "Brigad's Calling": {
+    "rarity": 6,
+    "attribute_stats": "Agility Boost",
+    "secondary_stats": "ATK Boost",
+    "skill_stats": "Detonate"
+  },
+  "Glorius Memory": {
+    "rarity": 6,
+    "attribute_stats": "Agility Boost",
+    "secondary_stats": "Critical Rate Boost",
+    "skill_stats": "Twilight"
+  },
+  "Home Longing": {
+    "rarity": 6,
+    "attribute_stats": "Agility Boost",
+    "secondary_stats": "Cryo DMG Boost",
+    "skill_stats": "Suppression"
   }
 }
