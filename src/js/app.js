@@ -773,7 +773,7 @@
 
         function getWeaponIconPath(weapon) {
             const iconOverrides = {
-                "Opus: Etch Figure": "оpus etch figure.png",
+                "Opus: Etch Figure": "opus_etch_figure.png",
                 "Opus: The Living": "opus_the_living.png"
             };
 
